@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Save, Image as ImageIcon, Type, Layout, Loader2, CheckCircle, Plus, Trash2, User, BarChart3, Mail, Briefcase, Building2 } from 'lucide-react';
+import AdminCard from '@/components/admin/AdminCard';
+import { motion } from 'framer-motion';
+import { Save, Image as ImageIcon, Layout, Loader2, CheckCircle, User, Briefcase, Building2, Mail, Trash2, Phone, Award, Globe, Linkedin, Twitter, Instagram, Plus } from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const { user } = useAuth();
@@ -37,6 +39,27 @@ export default function AdminSettingsPage() {
     services: {
       title: "BEYOND THE CONVENTIONAL",
       subtitle: "We define a new standard in real estate consulting, where every detail is managed with surgical precision."
+    },
+    profile: {
+      name: "Ahmed Hameed Kapadia",
+      title: "Premium Real Estate Investment Consultant",
+      bio: "With over a decade of experience in the Dubai luxury market, I specialize in securing high-value assets for a global clientele. My approach combines deep market intelligence with uncompromising integrity.",
+      image: "https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp",
+      stats: [
+        { label: "Market Dominance", value: "12+ Years" },
+        { label: "Portfolio Value", value: "$1.2B+" },
+        { label: "Client Satisfaction", value: "100%" }
+      ],
+      milestones: [
+        { year: "2024", title: "Senior Investment Partner", company: "Exclusive Assets Group", description: "Spearheading luxury acquisitions in Downtown Dubai and Palm Jumeirah." },
+        { year: "2020", title: "Lead Real Estate Advisor", company: "Premium Dubai Realty", description: "Managed a portfolio of 500+ commercial and residential units." }
+      ],
+      skills: ["Strategic Negotiation", "Market Intelligence", "Portfolio Management", "Luxury Asset Acquisition"],
+      socials: {
+        linkedin: "https://www.linkedin.com/in/ahmedhameedkapadia",
+        twitter: "https://twitter.com/ahmedkapadia",
+        instagram: "https://instagram.com/ahmedkapadia"
+      }
     }
   });
 
@@ -64,162 +87,182 @@ export default function AdminSettingsPage() {
     setSaving(false);
   };
 
-  if (loading) return <div className="p-20 text-center"><Loader2 className="animate-spin mx-auto w-10 h-10" /></div>;
+  if (loading) return (
+    <div className="py-20 flex flex-col items-center justify-center">
+      <Loader2 className="animate-spin w-8 h-8 text-[var(--color-gold)] mb-4" />
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Loading Master Configuration</p>
+    </div>
+  );
 
   const tabs = [
-    { id: 'hero', label: 'Hero Slides', icon: Layout },
+    { id: 'hero', label: 'Showcase', icon: Layout },
     { id: 'about', label: 'Biography', icon: User },
     { id: 'portfolio', label: 'Portfolio', icon: Building2 },
+    { id: 'profile', label: 'Profile', icon: Award },
     { id: 'services', label: 'Services', icon: Briefcase },
-    { id: 'contact', label: 'Contact', icon: Mail }
+    { id: 'contact', label: 'Channels', icon: Mail }
   ];
 
   return (
-    <div className="max-w-6xl mx-auto p-8 pb-32">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 sticky top-0 z-50 py-6 glass-dark px-10 -mx-10 rounded-b-[2rem]">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold text-white mb-1 tracking-tight">Corporate CMS</h1>
-          <p className="text-[10px] text-primary-500 uppercase tracking-[0.4em] font-bold">Authorized Access Only</p>
+          <h1 className="text-xl font-display font-bold text-[var(--text-main)] mb-1">Corporate System</h1>
+          <p className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider">CMS Master Terminal</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center space-x-4">
           {success && (
-            <motion.div initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} className="text-green-400 text-[10px] font-bold tracking-widest uppercase flex items-center">
-              <CheckCircle className="w-3 h-3 mr-2" /> Live Updated
+            <motion.div initial={{opacity:0, x:20}} animate={{opacity:1, x:0}} className="text-green-500 text-[9px] font-bold tracking-widest uppercase flex items-center">
+              <CheckCircle className="w-3.5 h-3.5 mr-1.5" /> Synchronized
             </motion.div>
           )}
           <button
             onClick={handleSave}
             disabled={saving}
-            className="btn-premium flex items-center space-x-3 px-10 !py-4 shadow-2xl"
+            className="btn-premium space-x-2"
           >
-            {saving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
-            <span className="text-[11px] tracking-[0.3em] font-bold">PUBLISH CHANGES</span>
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>Commit Changes</span>
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-12">
-        {/* Sidebar Tabs */}
-        <div className="lg:w-64 space-y-2">
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Navigation Sidebar */}
+        <div className="lg:w-48 space-y-1">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 group ${
+              className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group relative ${
                 activeTab === tab.id 
-                  ? 'bg-primary-500 text-white shadow-xl shadow-primary-500/20' 
-                  : 'glass text-gray-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[var(--bg-tertiary)] text-[var(--text-main)] border border-[var(--border-subtle)]' 
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-tertiary)]/50'
               }`}
             >
-              <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-primary-500/50 group-hover:text-primary-500'}`} />
-              <span className="text-xs font-bold tracking-widest uppercase">{tab.label}</span>
+              <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? 'text-[var(--color-gold)]' : 'opacity-40 group-hover:opacity-100 transition-opacity'}`} />
+              <span className="text-[10px] font-bold tracking-widest uppercase">{tab.label}</span>
+              {activeTab === tab.id && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-[var(--color-gold)] rounded-full" />
+              )}
             </button>
           ))}
         </div>
 
-        {/* Content Area */}
-        <div className="flex-grow glass p-10 rounded-[2.5rem] border border-white/5 bg-white/[0.02]">
+        {/* Configuration Module */}
+        <div className="flex-grow">
           {activeTab === 'hero' && (
-            <div className="space-y-10 animate-fade-in">
-              <div className="flex justify-between items-center border-b border-white/5 pb-6">
-                <h3 className="text-xl font-bold text-white uppercase tracking-tighter">Main Showcase Slider</h3>
-                <button onClick={() => setSettings({...settings, hero_slides: [...settings.hero_slides, {title:"", subtitle:"", image:""}]})} className="text-[10px] font-bold text-primary-500 hover:underline tracking-widest uppercase flex items-center">
-                  <Plus className="w-4 h-4 mr-1" /> Add New Slide
+            <AdminCard 
+              title="Visual Showcase Engine"
+              actions={
+                <button 
+                  onClick={() => setSettings({...settings, hero_slides: [...settings.hero_slides, {title:"", subtitle:"", image:""}]})}
+                  className="text-[9px] font-bold text-[var(--color-gold)] hover:underline uppercase tracking-widest"
+                >
+                  Add Slide
                 </button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              }
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {settings.hero_slides.map((slide, index) => (
-                  <div key={index} className="glass p-6 rounded-2xl border border-white/5 bg-black/20 space-y-4">
-                    <div className="flex justify-between items-center text-[10px] text-gray-500 font-bold uppercase">
-                      <span>SLIDE #{index+1}</span>
+                  <div key={index} className="p-4 rounded-lg bg-[var(--bg-tertiary)]/30 border border-[var(--border-subtle)] space-y-3 relative group">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Descriptor #{index+1}</span>
                       {settings.hero_slides.length > 1 && (
                         <button onClick={() => {
                           const newSlides = settings.hero_slides.filter((_, i) => i !== index);
                           setSettings({ ...settings, hero_slides: newSlides });
-                        }} className="text-red-400 hover:text-red-500"><Trash2 className="w-3 h-3" /></button>
+                        }} className="text-red-500/50 hover:text-red-500 transition-colors focus-ring p-1 rounded">
+                          <Trash2 className="w-3 h-3" />
+                        </button>
                       )}
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Title"
-                      value={slide.title}
-                      onChange={(e) => {
-                        const next = [...settings.hero_slides];
-                        next[index].title = e.target.value;
-                        setSettings({...settings, hero_slides: next});
-                      }}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-primary-500 outline-none transition-all"
-                    />
-                    <textarea
-                      placeholder="Descriptions"
-                      value={slide.subtitle}
-                      onChange={(e) => {
-                        const next = [...settings.hero_slides];
-                        next[index].subtitle = e.target.value;
-                        setSettings({...settings, hero_slides: next});
-                      }}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs text-white h-24 focus:border-primary-500 outline-none transition-all"
-                    />
-                    <div className="relative group">
+                    <div>
+                      <label className="admin-label">Slide Title</label>
                       <input
                         type="text"
-                        placeholder="Image Link"
-                        value={slide.image}
+                        value={slide.title}
                         onChange={(e) => {
                           const next = [...settings.hero_slides];
-                          next[index].image = e.target.value;
+                          next[index].title = e.target.value;
                           setSettings({...settings, hero_slides: next});
                         }}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white focus:border-primary-500 outline-none transition-all pl-10"
+                        className="admin-input"
                       />
-                      <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                    </div>
+                    <div>
+                      <label className="admin-label">Narration</label>
+                      <textarea
+                        value={slide.subtitle}
+                        onChange={(e) => {
+                          const next = [...settings.hero_slides];
+                          next[index].subtitle = e.target.value;
+                          setSettings({...settings, hero_slides: next});
+                        }}
+                        className="admin-input h-16 resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-label">Image URI</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={slide.image}
+                          onChange={(e) => {
+                            const next = [...settings.hero_slides];
+                            next[index].image = e.target.value;
+                            setSettings({...settings, hero_slides: next});
+                          }}
+                          className="admin-input pl-8"
+                        />
+                        <ImageIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--text-muted)] opacity-50" />
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </AdminCard>
           )}
 
           {activeTab === 'about' && (
-            <div className="space-y-10 animate-fade-in">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tighter border-b border-white/5 pb-6">Biography & Legacy</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="space-y-6">
+            <AdminCard title="Executive Biography">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Headline</label>
+                    <label className="admin-label">Legacy Headline</label>
                     <input
                       type="text"
                       value={settings.about.title}
                       onChange={(e) => setSettings({...settings, about: {...settings.about, title: e.target.value}})}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-display focus:border-primary-500 outline-none transition-all"
+                      className="admin-input font-bold"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Detailed Biography</label>
+                    <label className="admin-label">Detailed Biography</label>
                     <textarea
                       value={settings.about.subtitle}
                       onChange={(e) => setSettings({...settings, about: {...settings.about, subtitle: e.target.value}})}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white h-52 focus:border-primary-500 outline-none transition-all leading-relaxed"
+                      className="admin-input h-48 resize-none leading-relaxed"
                     />
                   </div>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div>
-                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Profile Image</label>
+                    <label className="admin-label">Portrait Representation</label>
                     <input
                       type="text"
                       value={settings.about.image}
                       onChange={(e) => setSettings({...settings, about: {...settings.about, image: e.target.value}})}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-[10px] text-white mb-4"
+                      className="admin-input text-[10px] mb-3"
                     />
-                    <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-white/10">
+                    <div className="aspect-[4/3] rounded-lg overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-tertiary)]">
                       <img src={settings.about.image} className="w-full h-full object-cover" alt="Profile" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {settings.about.stats.map((stat, i) => (
-                      <div key={i} className="space-y-2">
-                        <label className="text-[10px] text-gray-600 font-bold uppercase">{stat.label}</label>
+                      <div key={i}>
+                        <label className="admin-label">{stat.label}</label>
                         <input
                           type="text"
                           value={stat.value}
@@ -228,108 +271,243 @@ export default function AdminSettingsPage() {
                             next[i].value = e.target.value;
                             setSettings({...settings, about: {...settings.about, stats: next}});
                           }}
-                          className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-xs text-white"
+                          className="admin-input"
                         />
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
+            </AdminCard>
           )}
 
           {activeTab === 'portfolio' && (
-            <div className="space-y-10 animate-fade-in">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tighter border-b border-white/5 pb-6">Portfolio Section Header</h3>
-              <div className="space-y-6">
+            <AdminCard title="Investment Portfolio Deck">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Section Headline</label>
+                  <label className="admin-label">Showcase Headline</label>
                   <input
                     type="text"
                     value={settings.portfolio.title}
                     onChange={(e) => setSettings({...settings, portfolio: {...settings.portfolio, title: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-display"
+                    className="admin-input font-bold"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Section Intro</label>
+                  <label className="admin-label">Portfolio Narrative</label>
                   <textarea
                     value={settings.portfolio.subtitle}
                     onChange={(e) => setSettings({...settings, portfolio: {...settings.portfolio, subtitle: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white h-32"
+                    className="admin-input h-24 resize-none"
                   />
                 </div>
               </div>
-            </div>
+            </AdminCard>
           )}
 
           {activeTab === 'services' && (
-            <div className="space-y-10 animate-fade-in">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tighter border-b border-white/5 pb-6">Services Section Header</h3>
-              <div className="space-y-6">
+            <AdminCard title="Strategic Service Suite">
+              <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Section Headline</label>
+                  <label className="admin-label">Operational Headline</label>
                   <input
                     type="text"
                     value={settings.services.title}
                     onChange={(e) => setSettings({...settings, services: {...settings.services, title: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white font-display"
+                    className="admin-input font-bold"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Section Intro</label>
+                  <label className="admin-label">Service Philosophy</label>
                   <textarea
                     value={settings.services.subtitle}
                     onChange={(e) => setSettings({...settings, services: {...settings.services, subtitle: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white h-32"
+                    className="admin-input h-24 resize-none"
                   />
                 </div>
               </div>
+            </AdminCard>
+          )}
+
+          {activeTab === 'profile' && (
+            <div className="space-y-6">
+              <AdminCard title="Professional Persona">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="admin-label">Full Name</label>
+                      <input
+                        type="text"
+                        value={settings.profile.name}
+                        onChange={(e) => setSettings({...settings, profile: {...settings.profile, name: e.target.value}})}
+                        className="admin-input font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-label">Professional Designation</label>
+                      <input
+                        type="text"
+                        value={settings.profile.title}
+                        onChange={(e) => setSettings({...settings, profile: {...settings.profile, title: e.target.value}})}
+                        className="admin-input"
+                      />
+                    </div>
+                    <div>
+                      <label className="admin-label">Portrait URL</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={settings.profile.image}
+                          onChange={(e) => setSettings({...settings, profile: {...settings.profile, image: e.target.value}})}
+                          className="admin-input pl-8"
+                        />
+                        <ImageIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-gold)]" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="admin-label">Biography Highlights</label>
+                    <textarea
+                      value={settings.profile.bio}
+                      onChange={(e) => setSettings({...settings, profile: {...settings.profile, bio: e.target.value}})}
+                      className="admin-input h-40 resize-none leading-relaxed"
+                    />
+                  </div>
+                </div>
+              </AdminCard>
+
+              <AdminCard 
+                title="Career Milestones"
+                actions={
+                  <button 
+                    onClick={() => setSettings({...settings, profile: {...settings.profile, milestones: [...settings.profile.milestones, {year: "", title: "", company: "", description: ""}]}})}
+                    className="text-[9px] font-bold text-[var(--color-gold)] hover:underline uppercase tracking-widest flex items-center"
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Add Milestone
+                  </button>
+                }
+              >
+                <div className="space-y-4">
+                  {settings.profile.milestones.map((m, i) => (
+                    <div key={i} className="p-4 rounded-xl bg-[var(--bg-tertiary)]/30 border border-[var(--border-strong)] grid grid-cols-1 md:grid-cols-4 gap-4 relative group">
+                      <div className="md:col-span-1">
+                        <label className="admin-label">Year</label>
+                        <input type="text" value={m.year} onChange={(e) => {
+                          const next = [...settings.profile.milestones];
+                          next[i].year = e.target.value;
+                          setSettings({...settings, profile: {...settings.profile, milestones: next}});
+                        }} className="admin-input" />
+                      </div>
+                      <div className="md:col-span-3 pr-8">
+                        <label className="admin-label">Position / Achievement</label>
+                        <input type="text" value={m.title} onChange={(e) => {
+                          const next = [...settings.profile.milestones];
+                          next[i].title = e.target.value;
+                          setSettings({...settings, profile: {...settings.profile, milestones: next}});
+                        }} className="admin-input" />
+                      </div>
+                      <div className="md:col-span-1">
+                        <label className="admin-label">Institution</label>
+                        <input type="text" value={m.company} onChange={(e) => {
+                          const next = [...settings.profile.milestones];
+                          next[i].company = e.target.value;
+                          setSettings({...settings, profile: {...settings.profile, milestones: next}});
+                        }} className="admin-input" />
+                      </div>
+                      <div className="md:col-span-3">
+                        <label className="admin-label">Description</label>
+                        <textarea value={m.description} onChange={(e) => {
+                          const next = [...settings.profile.milestones];
+                          next[i].description = e.target.value;
+                          setSettings({...settings, profile: {...settings.profile, milestones: next}});
+                        }} className="admin-input h-16 resize-none" />
+                      </div>
+                      <button onClick={() => {
+                        const next = settings.profile.milestones.filter((_, idx) => idx !== i);
+                        setSettings({...settings, profile: {...settings.profile, milestones: next}});
+                      }} className="absolute top-2 right-2 text-red-500/50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </AdminCard>
+
+              <AdminCard title="Digital Footprint">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="admin-label flex items-center"><Linkedin className="w-3 h-3 mr-1.5" /> LinkedIn</label>
+                    <input
+                      type="text"
+                      value={settings.profile.socials.linkedin}
+                      onChange={(e) => setSettings({...settings, profile: {...settings.profile, socials: {...settings.profile.socials, linkedin: e.target.value}}})}
+                      className="admin-input text-[10px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label flex items-center"><Twitter className="w-3 h-3 mr-1.5" /> X (Twitter)</label>
+                    <input
+                      type="text"
+                      value={settings.profile.socials.twitter}
+                      onChange={(e) => setSettings({...settings, profile: {...settings.profile, socials: {...settings.profile.socials, twitter: e.target.value}}})}
+                      className="admin-input text-[10px]"
+                    />
+                  </div>
+                  <div>
+                    <label className="admin-label flex items-center"><Instagram className="w-3 h-3 mr-1.5" /> Instagram</label>
+                    <input
+                      type="text"
+                      value={settings.profile.socials.instagram}
+                      onChange={(e) => setSettings({...settings, profile: {...settings.profile, socials: {...settings.profile.socials, instagram: e.target.value}}})}
+                      className="admin-input text-[10px]"
+                    />
+                  </div>
+                </div>
+              </AdminCard>
             </div>
           )}
 
           {activeTab === 'contact' && (
-            <div className="space-y-10 animate-fade-in">
-              <h3 className="text-xl font-bold text-white uppercase tracking-tighter border-b border-white/5 pb-6">Direct Office Channels</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="relative">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Office Phone</label>
-                  <input
-                    type="text"
-                    value={settings.contact.phone}
-                    onChange={(e) => setSettings({...settings, contact: {...settings.contact, phone: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-10 py-3 text-sm text-white"
-                  />
-                  <Phone className="absolute left-4 top-[42px] w-4 h-4 text-primary-500" />
+            <AdminCard title="Channel Configuration">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="admin-label">Direct Line</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={settings.contact.phone}
+                      onChange={(e) => setSettings({...settings, contact: {...settings.contact, phone: e.target.value}})}
+                      className="admin-input pl-8"
+                    />
+                    <Phone className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-gold)]" />
+                  </div>
                 </div>
-                <div className="relative">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">Contact Email</label>
-                  <input
-                    type="text"
-                    value={settings.contact.email}
-                    onChange={(e) => setSettings({...settings, contact: {...settings.contact, email: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-10 py-3 text-sm text-white"
-                  />
-                  <Mail className="absolute left-4 top-[42px] w-4 h-4 text-primary-500" />
+                <div>
+                  <label className="admin-label">Correspondence</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={settings.contact.email}
+                      onChange={(e) => setSettings({...settings, contact: {...settings.contact, email: e.target.value}})}
+                      className="admin-input pl-8"
+                    />
+                    <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-gold)]" />
+                  </div>
                 </div>
-                <div className="relative md:col-span-2">
-                  <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2">HQ Address</label>
+                <div className="md:col-span-2">
+                  <label className="admin-label">HQ Coordinates</label>
                   <input
                     type="text"
                     value={settings.contact.address}
                     onChange={(e) => setSettings({...settings, contact: {...settings.contact, address: e.target.value}})}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-10 py-3 text-sm text-white"
+                    className="admin-input"
                   />
-                  <MapPin className="absolute left-4 top-[42px] w-4 h-4 text-primary-500" />
                 </div>
               </div>
-            </div>
+            </AdminCard>
           )}
         </div>
       </div>
     </div>
   );
 }
-
-const Phone = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>;
-const MapPin = ({ className }) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;

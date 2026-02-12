@@ -10,10 +10,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useTheme } from '@/components/theme/ThemeProvider';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function Navbar() {
   const { user, userName, isAdmin, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -27,16 +29,15 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Portfolio', href: '/#portfolio' },
+    { name: 'Portfolio', href: '/portfolio' },
     { name: 'Services', href: '/#services' },
     { name: 'Insights', href: '/blog' },
     { name: 'Inquiry', href: '/submit-form' },
   ];
 
-  // Ensure text is ALWAYS white on hero (since it has dark slides)
-  // When scrolled, we force dark text to contrast with the glass-light (white) background
+  // Ensure text contrast is perfect against the glass-light background
   const navTextColorClass = isScrolled 
-    ? 'text-gray-900' 
+    ? (theme === 'light' ? 'text-gray-900' : 'text-white')
     : 'text-white';
 
   return (
@@ -49,13 +50,12 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex justify-between items-center">
         {/* LOGO */}
-        <Link href="/" className="group flex flex-col">
-          <span className={`text-xl sm:text-2xl font-display font-bold tracking-tighter ${navTextColorClass} transition-colors`}>
-            AHMED <span className="gradient-text">KAPADIA</span>
-          </span>
-          <span className="text-[8px] uppercase tracking-[0.6em] font-bold text-primary-500 opacity-80 group-hover:opacity-100 transition-opacity">
-            Private Office
-          </span>
+        <Link href="/" className="group flex items-center">
+          <BrandLogo 
+            size="md" 
+            className="mr-2" 
+            variant={isScrolled ? (theme === 'light' ? 'dark' : 'light') : 'light'} 
+          />
         </Link>
 
         {/* DESKTOP NAV */}
@@ -77,10 +77,12 @@ export default function Navbar() {
             onClick={toggleTheme}
             className={`p-2.5 rounded-xl transition-all active:scale-90 shadow-md ${
               isScrolled
-                ? 'bg-gray-100 border border-black/5 text-gray-900'
-                : theme === 'light'
-                ? 'bg-white/80 border border-[var(--glass-border)] text-gray-900 backdrop-blur-sm'
-                : 'bg-white/10 border border-white/20 text-white backdrop-blur-sm'
+                ? (theme === 'light' 
+                    ? 'bg-gray-100 border border-black/5 text-gray-900' 
+                    : 'bg-white/10 border border-white/10 text-white backdrop-blur-sm')
+                : (theme === 'light'
+                    ? 'bg-white/80 border border-[var(--glass-border)] text-gray-900 backdrop-blur-sm'
+                    : 'bg-white/10 border border-white/20 text-white backdrop-blur-sm')
             } hover:bg-primary-500/10 hover:border-primary-500`}
             aria-label="Toggle Theme"
           >
@@ -91,15 +93,7 @@ export default function Navbar() {
           <div className="pl-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                {isAdmin && (
-                  <Link
-                    href="/admin"
-                    className="flex items-center space-x-2 bg-primary-600 text-white px-5 py-2.5 rounded-xl font-bold border border-primary-500 shadow-xl shadow-primary-500/30 hover:bg-primary-700 transition-all duration-300 group"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
-                    <span className="text-[9px] tracking-[0.2em] uppercase whitespace-nowrap">Control Center</span>
-                  </Link>
-                )}
+                {/* Standalone Control Center Button Removed - Now exclusively in Dropdown for cleaner UI */}
                 
                 <div className="relative">
                   <button 
@@ -122,7 +116,9 @@ export default function Navbar() {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-72 glass p-3 rounded-2xl shadow-3xl border border-[var(--glass-border)] z-[110]"
+                        className={`absolute right-0 mt-3 w-72 glass p-3 rounded-2xl shadow-3xl border border-[var(--glass-border)] z-[110] ${
+                          theme === 'dark' ? 'premium-card-border' : ''
+                        }`}
                       >
                         {/* User Info Header */}
                         <div className="px-4 py-4 border-b border-[var(--glass-border)] mb-2">

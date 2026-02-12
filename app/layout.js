@@ -70,13 +70,17 @@ export const metadata = {
   },
 };
 
+import { ToastProvider } from '@/components/ui/ToastProvider';
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${syne.variable} ${outfit.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen transition-colors duration-300" suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>
-            <LayoutWrapper>{children}</LayoutWrapper>
+            <ToastProvider>
+              <LayoutWrapper>{children}</LayoutWrapper>
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -37,11 +37,11 @@ export async function POST(request) {
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(7);
     const fileExt = file.name.split('.').pop();
-    const fileName = `blog-images/${timestamp}-${randomString}.${fileExt}`;
+    const fileName = `${timestamp}-${randomString}.${fileExt}`;
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage (using the new media bucket)
     const { data, error } = await supabase.storage
-      .from('blog-uploads')
+      .from('media')
       .upload(fileName, buffer, {
         contentType: file.type,
         upsert: false
@@ -54,8 +54,31 @@ export async function POST(request) {
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('blog-uploads')
+      .from('media')
       .getPublicUrl(fileName);
+
+    // Get user metadata for uploader name from profiles table
+    const { data: userData } = await supabase
+      .from('profiles')
+      .select('name')
+      .eq('id', session.user.id)
+      .single();
+
+    const uploaderName = userData?.name || session.user.email?.split('@')[0] || 'Unknown';
+
+    // Create record in media table
+    await supabase
+      .from('media')
+      .insert({
+        filename: fileName,
+        original_filename: file.name,
+        storage_path: fileName,
+        public_url: publicUrl,
+        file_size: file.size,
+        mime_type: file.type,
+        uploaded_by: session.user.id,
+        uploader_name: uploaderName
+      });
 
     return NextResponse.json({
       success: true,

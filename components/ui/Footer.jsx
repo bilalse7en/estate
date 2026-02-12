@@ -4,8 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
+import { useTheme } from '@/components/theme/ThemeProvider';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function Footer() {
+  const { theme } = useTheme();
   const currentYear = new Date().getFullYear();
   const [contact, setContact] = useState({
     phone: "+971 4 XXX XXXX",
@@ -27,9 +30,17 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-24 mb-20">
           <div className="lg:col-span-2 space-y-10">
             <Link href="/" className="inline-block group">
-              <span className="text-3xl font-display font-bold text-[var(--text-main)] tracking-tighter uppercase">
-                Ahmed <span className="gradient-text">Kapadia</span>
-              </span>
+              <div className="flex items-center space-x-3 mb-4">
+                <BrandLogo size="lg" variant={theme === 'light' ? 'dark' : 'light'} />
+                <div className="flex flex-col">
+                  <span className="text-xl font-display font-bold text-[var(--text-main)] tracking-tight uppercase">
+                    Ahmed <span className="gradient-text">Kapadia</span>
+                  </span>
+                  <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-primary-500/80">
+                    Private Office
+                  </span>
+                </div>
+              </div>
               <span className="block h-px w-0 group-hover:w-full bg-primary-500 transition-all duration-500" />
             </Link>
             <p className="text-[var(--text-muted)] leading-relaxed max-w-md text-sm">
@@ -74,7 +85,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-12 premium-border-t flex flex-col md:flex-row justify-between items-center gap-8">
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[var(--text-muted)] font-bold">
+          <p className="text-[10px] uppercase text-[var(--text-muted)] font-bold">
             © {currentYear} Ahmed Kapadia. Exclusive Assets Group.
           </p>
           <div className="flex space-x-10 text-[9px] uppercase tracking-[0.2em] font-bold text-[var(--text-muted)]">

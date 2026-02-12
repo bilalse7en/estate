@@ -1,18 +1,21 @@
 'use client';
 
+import AdminCard from '@/components/admin/AdminCard';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 import { Loader2, Save, Eye, ArrowLeft } from 'lucide-react';
+import MediaUploader from '@/components/admin/MediaUploader';
 
 // Dynamically import Editor.js (client-side only)
 const EditorJSComponent = dynamic(() => import('@/components/admin/EditorJSComponent'), {
   ssr: false,
   loading: () => (
-    <div className="border border-[var(--glass-border)] rounded-2xl p-8 bg-[var(--bg-secondary)] min-h-[500px] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
+    <div className="admin-card p-12 bg-[var(--bg-secondary)] min-h-[400px] flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-[var(--color-gold)]" />
     </div>
   ),
 });
@@ -27,7 +30,6 @@ export default function NewBlogPage() {
   const [content, setContent] = useState({ blocks: [] });
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -42,34 +44,6 @@ export default function NewBlogPage() {
     }
   }, [title]);
 
-  const handleFeaturedImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      
-      if (data.success && data.url) {
-        setFeaturedImage(data.url);
-      } else {
-        alert('Failed to upload image');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Error uploading image');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -113,162 +87,140 @@ export default function NewBlogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] py-12">
-      <div className="max-w-5xl mx-auto px-6">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
           <button
             onClick={() => router.back()}
-            className="flex items-center space-x-2 text-[var(--text-muted)] hover:text-primary-500 mb-6 transition-colors"
+            className="flex items-center space-x-2 text-[var(--text-muted)] hover:text-primary-500 mb-1 transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Blogs</span>
+            <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Return to Inventory</span>
           </button>
-          <h1 className="text-4xl font-display font-bold text-[var(--text-main)]">Create New Blog Post</h1>
-          <p className="text-[var(--text-muted)] mt-2">Write and publish your blog content with Editor.js</p>
+          <h1 className="text-xl font-display font-bold text-[var(--text-main)]">Initialize Publication</h1>
+        </div>
+        <div className="flex space-x-3">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="btn-glass text-xs"
+          >
+            Discard
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="btn-premium space-x-2"
+          >
+            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>{published ? 'Publish Now' : 'Save Draft'}</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Main Content Area */}
+          <AdminCard title="Primary Content Engine">
+            <div className="space-y-4">
+              <div>
+                <label className="admin-label">Publication Title *</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter a professional title..."
+                  className="admin-input"
+                  required
+                />
+              </div>
+              <div>
+                <label className="admin-label">Journal Content *</label>
+                <EditorJSComponent
+                  data={content}
+                  onChange={setContent}
+                  editorblock="editorjs-new-blog"
+                />
+              </div>
+            </div>
+          </AdminCard>
         </div>
 
-        <form onSubmit={handleSave} className="space-y-8">
-          {/* Title */}
-          <div className="glass p-6 rounded-2xl">
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wider">
-              Title *
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter blog title..."
-              className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-xl text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-primary-500 transition-colors"
-              required
-            />
-          </div>
-
-          {/* Slug */}
-          <div className="glass p-6 rounded-2xl">
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wider">
-              URL Slug *
-            </label>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="url-friendly-slug"
-              className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-xl text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-primary-500 transition-colors font-mono text-sm"
-              required
-            />
-            <p className="text-xs text-[var(--text-muted)] mt-2">
-              Preview: /blog/{slug || 'your-slug-here'}
-            </p>
-          </div>
-
-          {/* Excerpt */}
-          <div className="glass p-6 rounded-2xl">
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wider">
-              Excerpt (Optional)
-            </label>
-            <textarea
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              placeholder="A brief summary of your blog post..."
-              rows={3}
-              className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-xl text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:border-primary-500 transition-colors resize-none"
-            />
-          </div>
-
-          {/* Featured Image */}
-          <div className="glass p-6 rounded-2xl">
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wider">
-              Featured Image (Optional)
-            </label>
+        <div className="space-y-6">
+          {/* Metadata & Media Sidepanel */}
+          <AdminCard title="Distribution Settings">
             <div className="space-y-4">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFeaturedImageUpload}
-                className="w-full text-sm text-[var(--text-main)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-500 file:text-white hover:file:bg-primary-600 file:cursor-pointer"
-                disabled={uploadingImage}
+              <div>
+                <label className="admin-label">URL Routing Slug *</label>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="admin-input font-mono text-[10px]"
+                  required
+                />
+                <p className="text-[9px] text-[var(--text-muted)] mt-1 font-medium">
+                  Preview: /blog/{slug || '...'}
+                </p>
+              </div>
+              
+              <div>
+                <label className="admin-label">Brief Abstract (Excerpt)</label>
+                <textarea
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  placeholder="Summary for SEO and listings..."
+                  rows={4}
+                  className="admin-input resize-none h-24"
+                />
+              </div>
+
+              <div className="pt-2">
+                <label className="flex items-center space-x-3 cursor-pointer group">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={published}
+                      onChange={(e) => setPublished(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-10 h-5 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-full peer peer-checked:bg-[var(--color-gold)] transition-all"></div>
+                    <div className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-all peer-checked:left-6"></div>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] group-hover:text-[var(--text-main)] transition-colors">
+                    Public Visibility
+                  </span>
+                </label>
+              </div>
+            </div>
+          </AdminCard>
+
+          <AdminCard title="Visual Assets">
+            <div className="space-y-4">
+              <label className="admin-label">Cover Representation</label>
+              <MediaUploader 
+                onUploadSuccess={(media) => setFeaturedImage(media.public_url)} 
               />
-              {uploadingImage && (
-                <div className="flex items-center space-x-2 text-primary-500">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm">Uploading...</span>
-                </div>
-              )}
               {featuredImage && (
-                <div className="relative">
+                <div className="relative group rounded-lg overflow-hidden border border-[var(--border-subtle)]">
                   <img
                     src={featuredImage}
                     alt="Featured"
-                    className="w-full h-64 object-cover rounded-xl"
+                    className="w-full aspect-video object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => setFeaturedImage('')}
-                    className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600"
+                    className="absolute inset-0 bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity font-bold text-[10px] uppercase tracking-widest"
                   >
-                    Remove
+                    Remove Asset
                   </button>
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Editor.js Content */}
-          <div>
-            <label className="block text-sm font-bold text-[var(--text-main)] mb-4 uppercase tracking-wider">
-              Content *
-            </label>
-            <EditorJSComponent
-              data={content}
-              onChange={setContent}
-              editorblock="editorjs-new-blog"
-            />
-          </div>
-
-          {/* Publish Toggle */}
-          <div className="glass p-6 rounded-2xl">
-            <label className="flex items-center space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={published}
-                onChange={(e) => setPublished(e.target.checked)}
-                className="w-5 h-5 rounded border-[var(--glass-border)] text-primary-500 focus:ring-2 focus:ring-primary-500"
-              />
-              <span className="text-[var(--text-main)] font-medium">
-                Publish immediately
-              </span>
-            </label>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end space-x-4 pt-6">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-6 py-3 border border-[var(--glass-border)] text-[var(--text-main)] rounded-xl hover:bg-[var(--bg-secondary)] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-premium px-8 py-3 flex items-center space-x-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  <span>{published ? 'Publish' : 'Save Draft'}</span>
-                </>
-              )}
-            </button>
-          </div>
-        </form>
+          </AdminCard>
+        </div>
       </div>
     </div>
   );

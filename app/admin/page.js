@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import AdminCard from '@/components/admin/AdminCard';
+import Link from 'next/link';
 import { FileText, Inbox, TrendingUp, Users } from 'lucide-react';
 
 export default async function AdminDashboardPage() {
@@ -13,58 +15,85 @@ export default async function AdminDashboardPage() {
     .select('*', { count: 'exact', head: true });
 
   const stats = [
-    { label: 'Total Blogs', value: blogsCount || 0, icon: FileText, color: 'from-blue-500 to-blue-600' },
-    { label: 'Client Forms', value: formsCount || 0, icon: Inbox, color: 'from-green-500 to-green-600' },
-    { label: 'Published Posts', value: blogsCount || 0, icon: TrendingUp, color: 'from-purple-500 to-purple-600' },
-    { label: 'Active Users', value: '25+', icon: Users, color: 'from-orange-500 to-orange-600' },
+    { label: 'Total Blogs', value: blogsCount || 0, icon: FileText, color: 'text-blue-500' },
+    { label: 'Client Inquiries', value: formsCount || 0, icon: Inbox, color: 'text-green-500' },
+    { label: 'Performance', value: 'High', icon: TrendingUp, color: 'text-[var(--color-gold)]' },
+    { label: 'Network', value: 'Active', icon: Users, color: 'text-purple-500' },
   ];
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-[var(--text-main)] mb-2">Dashboard</h1>
-        <p className="text-[var(--text-muted)]">Welcome to your admin panel</p>
+    <div className="space-y-6">
+      <div className="flex flex-col">
+        <h1 className="text-xl font-display font-bold text-[var(--text-main)] mb-1">Dashboard</h1>
+        <p className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider">Operational Overview</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="glass p-6 rounded-2xl hover:shadow-2xl transition-all border border-[var(--glass-border)] group"
+            className="admin-card p-4 flex items-center space-x-4 h-full"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg group-hover:shadow-xl transition-shadow`}>
-                <stat.icon className="w-6 h-6 text-white stroke-[2]" />
-              </div>
-              <span className="text-3xl font-bold text-[var(--text-main)] font-display">{stat.value}</span>
+            <div className={`w-10 h-10 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center border border-[var(--border-strong)] shadow-inner`}>
+              <stat.icon className={`w-5 h-5 ${stat.color}`} />
             </div>
-            <p className="text-[var(--text-muted)] font-medium text-sm uppercase tracking-wider">{stat.label}</p>
+            <div>
+              <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{stat.label}</p>
+              <p className="text-xl font-bold text-[var(--text-main)] leading-none mt-0.5">{stat.value}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="glass p-8 rounded-2xl border border-[var(--glass-border)]">
-        <h2 className="text-2xl font-display font-bold text-[var(--text-main)] mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a
-            href="/admin/blogs/new"
-            className="p-8 border-2 border-dashed border-[var(--glass-border)] rounded-2xl hover:border-primary-500 hover:bg-primary-500/5 transition-all text-center group"
-          >
-            <FileText className="w-12 h-12 text-primary-500 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold text-[var(--text-main)] text-lg">Create New Blog Post</h3>
-            <p className="text-[var(--text-muted)] text-sm mt-2">Start writing with Editor.js</p>
-          </a>
-          <a
-            href="/admin/forms"
-            className="p-8 border-2 border-dashed border-[var(--glass-border)] rounded-2xl hover:border-primary-500 hover:bg-primary-500/5 transition-all text-center group"
-          >
-            <Inbox className="w-12 h-12 text-primary-500 mx-auto mb-3 group-hover:scale-110 transition-transform" />
-            <h3 className="font-semibold text-[var(--text-main)] text-lg">View Client Inquiries</h3>
-            <p className="text-[var(--text-muted)] text-sm mt-2">Manage form submissions</p>
-          </a>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Quick Actions */}
+        <AdminCard 
+          title="Command Center" 
+          className="lg:col-span-2"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Link
+              href="/admin/blogs/new"
+              className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-tertiary)]/20 hover:bg-[var(--hover-bg)] hover:border-[var(--color-gold)] transition-all group focus-ring"
+            >
+              <div className="flex items-center space-x-3 mb-2">
+                <FileText className="w-5 h-5 text-[var(--color-gold)]" />
+                <h3 className="font-bold text-[var(--text-main)] text-sm">New Publication</h3>
+              </div>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium font-mono opacity-70">Initialize a new blog entry with Editor.js engine.</p>
+            </Link>
+            
+            <Link
+              href="/admin/forms"
+              className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-tertiary)]/20 hover:bg-[var(--hover-bg)] hover:border-[var(--color-gold)] transition-all group focus-ring"
+            >
+              <div className="flex items-center space-x-3 mb-2">
+                <Inbox className="w-5 h-5 text-[var(--color-gold)]" />
+                <h3 className="font-bold text-[var(--text-main)] text-sm">Inquiry Review</h3>
+              </div>
+              <p className="text-[10px] text-[var(--text-muted)] font-medium font-mono opacity-70">Process recent client submissions and leads.</p>
+            </Link>
+          </div>
+        </AdminCard>
+
+        {/* System Info */}
+        <AdminCard title="System Diagnostics">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Status</span>
+              <span className="text-[10px] font-bold text-green-500 uppercase px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">Optimal</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Database</span>
+              <span className="text-[10px] font-bold text-[var(--text-main)]">Connected</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Storage</span>
+              <span className="text-[10px] font-bold text-[var(--text-main)]">Encrypted</span>
+            </div>
+          </div>
+        </AdminCard>
       </div>
     </div>
   );

@@ -13,40 +13,51 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
 
+import BrandLogo from '@/components/ui/BrandLogo';
+import { useToast } from '@/components/ui/ToastProvider';
+import { useTheme } from '@/components/theme/ThemeProvider';
+
 export default function HeroSection() {
+  const { addToast } = useToast();
+  const { theme } = useTheme();
   const [slides, setSlides] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHero() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-      if (data?.content?.hero_slides) {
-        setSlides(data.content.hero_slides);
-      } else {
-        setSlides([
-          {
-            title: "Elevating Your Dubai Lifestyle",
-            subtitle: "Experience unparalleled service and exclusive access to the most prestigious properties in Dubai.",
-            image: "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?auto=format&fit=crop&q=80&w=2000"
-          },
-          {
-            title: "Uncompromising Integrity & Vision",
-            subtitle: "Securing your legacy through expert market intelligence and bespoke acquisition strategies.",
-            image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000"
-          }
-        ]);
+      try {
+        const { data, error } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
+        if (error) throw error;
+        
+        if (data?.content?.hero_slides) {
+          setSlides(data.content.hero_slides);
+        } else {
+          setSlides([
+            {
+              title: "Elevating Your Dubai Lifestyle",
+              subtitle: "Experience unparalleled service and exclusive access to the most prestigious properties in Dubai.",
+              image: "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?auto=format&fit=crop&q=80&w=2000"
+            },
+            {
+              title: "Uncompromising Integrity & Vision",
+              subtitle: "Securing your legacy through expert market intelligence and bespoke acquisition strategies.",
+              image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000"
+            }
+          ]);
+        }
+      } catch (err) {
+        console.error('Loader stuck prevention: ', err);
+        // Ensure defaults are set if fetch fails
+        setSlides([]); 
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchHero();
   }, []);
 
-  if (loading || slides.length === 0) {
-    return (
-      <div className="h-screen w-full bg-[var(--bg-main)] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+  if (loading && slides.length === 0) {
+    return <div className="h-screen bg-[var(--bg-main)]" />;
   }
 
   return (

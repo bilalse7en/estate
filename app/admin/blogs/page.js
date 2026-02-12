@@ -1,7 +1,8 @@
-import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/utils';
-import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import AdminCard from '@/components/admin/AdminCard';
+import Link from 'next/link';
+import { Plus, FileText, Eye, Edit, Trash2 } from 'lucide-react';
 
 export default async function AdminBlogsPage() {
   const supabase = await createClient();
@@ -12,90 +13,106 @@ export default async function AdminBlogsPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold text-navy-900 mb-2">Blog Posts</h1>
-          <p className="text-gray-600">Manage your blog content</p>
+          <h1 className="text-xl font-display font-bold text-[var(--text-main)] mb-1">Blog Management</h1>
+          <p className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider">Content Inventory</p>
         </div>
         <Link
           href="/admin/blogs/new"
-          className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg font-semibold hover:shadow-2xl transition-all btn-premium"
+          className="btn-premium space-x-2"
         >
-          <Plus className="w-5 h-5" />
-          <span>New Post</span>
+          <Plus className="w-3.5 h-3.5" />
+          <span>New Publication</span>
         </Link>
       </div>
 
-      {error || !blogs || blogs.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-          <p className="text-gray-500 mb-4">No blog posts yet</p>
-          <Link
-            href="/admin/blogs/new"
-            className="inline-block px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-          >
-            Create Your First Post
-          </Link>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Created</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {blogs.map((blog) => (
-                <tr key={blog.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-navy-900">{blog.title}</div>
-                    <div className="text-sm text-gray-500">{blog.slug}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        blog.published
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                    >
-                      {blog.published ? 'Published' : 'Draft'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {formatDate(blog.created_at)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center justify-end space-x-2">
-                      <a
-                        href={`/blog/${blog.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 text-gray-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </a>
-                      <Link
-                        href={`/admin/blogs/edit/${blog.id}`}
-                        className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </Link>
-                      <button className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
+      <AdminCard 
+        title="Post Inventory"
+        className="overflow-hidden"
+      >
+        {error || !blogs || blogs.length === 0 ? (
+          <div className="py-12 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center">
+              <FileText className="w-6 h-6 text-[var(--text-muted)]" />
+            </div>
+            <h3 className="text-sm font-bold text-[var(--text-main)] mb-1">No publications yet</h3>
+            <p className="text-xs text-[var(--text-muted)] mb-4">Initialize your first post to begin circulation</p>
+            <Link
+              href="/admin/blogs/new"
+              className="btn-glass text-[10px] px-4 py-1.5"
+            >
+              Initialize Post
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto -mx-4 -mb-4">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[var(--bg-tertiary)]/50 border-b border-[var(--border-subtle)]">
+                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Publication Title</th>
+                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Visibility</th>
+                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Date Created</th>
+                  <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Operations</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody className="divide-y divide-[var(--border-subtle)]">
+                {blogs.map((blog) => (
+                  <tr key={blog.id} className="hover:bg-[var(--bg-tertiary)]/30 transition-colors group">
+                    <td className="px-4 py-3">
+                      <div className="max-w-md">
+                        <p className="text-xs font-bold text-[var(--text-main)] truncate mb-0.5">{blog.title}</p>
+                        <p className="text-[10px] text-[var(--text-muted)] font-mono opacity-60">/{blog.slug}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
+                          blog.published
+                            ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                            : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                        }`}
+                      >
+                        {blog.published ? 'Published' : 'Draft'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-[10px] font-bold uppercase tracking-tighter text-[var(--text-muted)]">
+                      {formatDate(blog.created_at)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end space-x-1">
+                        <a
+                          href={`/blog/${blog.slug}${!blog.published ? '?preview=true&token=preview-secret-2024' : ''}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--color-gold)] transition-all focus-ring"
+                          title="View"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </a>
+                        <Link
+                          href={`/admin/blogs/edit/${blog.id}`}
+                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-blue-500 transition-all focus-ring"
+                          title="Edit"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </Link>
+                        <button 
+                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-red-500 transition-all focus-ring"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </AdminCard>
     </div>
   );
 }
