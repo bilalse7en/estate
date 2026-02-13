@@ -36,7 +36,9 @@ export const AuthProvider = ({ children }) => {
           setUserName(profile?.name || user.email?.split('@')[0] || 'User');
         }
       } catch (error) {
-        console.error('AuthProvider checkUser error:', error);
+        if (error.name !== 'AbortError') {
+          console.error('AuthProvider checkUser error:', error);
+        }
       } finally {
         setLoading(false);
       }

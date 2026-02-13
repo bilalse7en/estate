@@ -1,4 +1,4 @@
-import { sendThankYouEmail } from '@/lib/email/resend';
+import { sendThankYouEmail } from '@/lib/email/mailer';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
@@ -12,22 +12,23 @@ export async function POST(request) {
       );
     }
 
-    // Send email using Resend
+    // Send email using Nodemailer (Gmail)
     const result = await sendThankYouEmail(to, name, formData || {});
 
     if (!result.success) {
       console.error('Failed to send email:', result.error);
-      // Don't fail the request, just log the error
+      // Return success true so the user sees the 'CheckCircle' UI, but log the email failure internally
       return NextResponse.json({
         success: true,
         emailSent: false,
-        message: 'Form submitted but email delivery failed',
+        message: 'Form submitted successfully (Email delivery failed)',
       });
     }
 
     return NextResponse.json({
       success: true,
       emailSent: true,
+      data: result.data
     });
 
   } catch (error) {
