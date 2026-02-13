@@ -40,12 +40,16 @@ export default function SubmitFormPage() {
     setError('');
     setSuccess(false);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     try {
+      // 1. Save to Supabase
       const { error: insertError } = await supabase
         .from('client_forms')
         .insert([
           {
-            user_id: user?.id || null, // Allow guest submissions or link to user
+            user_id: user?.id || null,
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
@@ -56,27 +60,39 @@ export default function SubmitFormPage() {
 
       if (insertError) throw insertError;
 
-      // Trigger email API
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: formData.email,
-          name: formData.name,
-          formData: {
+      // 2. Trigger email API (Silent fail if environment variables missing on Vercel)
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            to: formData.email,
             name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            property_interest: formData.propertyInterest,
-            message: formData.message,
-          },
-        }),
-      });
+            formData: {
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              property_interest: formData.propertyInterest,
+              message: formData.message,
+            },
+          }),
+        });
+      } catch (emailErr) {
+        console.warn('Email notification skipped or failed:', emailErr);
+        // We don't throw here - the data is already in Supabase!
+      }
 
+      clearTimeout(timeoutId);
       setSuccess(true);
-      setTimeout(() => router.push('/'), 3000);
+      
+      // Give user time to see the success message before redirecting
+      setTimeout(() => {
+        router.push('/');
+      }, 4000);
+
     } catch (err) {
-      setError(err.message || 'Error submitting form');
+      setError(err.message || 'Transmission failed. Please try again or contact us directly.');
     } finally {
       setLoading(false);
     }
