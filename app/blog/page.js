@@ -16,14 +16,27 @@ export const metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function BlogPage() {
-  const supabase = await createClient();
-  
-  const { data: blogs, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('published', true)
-    .order('created_at', { ascending: false });
+  let blogs = [];
+  let error = null;
+
+  try {
+    const supabase = await createClient();
+    if (supabase) {
+      const { data, error: fetchError } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('published', true)
+        .order('created_at', { ascending: false });
+      
+      blogs = data || [];
+      error = fetchError;
+    }
+  } catch (e) {
+    console.warn('Supabase not available during blog page build');
+  }
 
   const featuredBlog = blogs?.[0]; // Most recent blog as featured
   const otherBlogs = blogs?.slice(1) || [];

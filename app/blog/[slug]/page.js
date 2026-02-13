@@ -11,22 +11,26 @@ import PreviewBanner from '@/components/blog/PreviewBanner';
 // Secret token for preview mode (in production, use environment variable)
 const PREVIEW_TOKEN = process.env.PREVIEW_TOKEN || 'preview-secret-2024';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  
-  const { data: blog } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('slug', slug)
-    .eq('published', true)
-    .single();
+  try {
+    const supabase = await createClient();
+    if (!supabase) return { title: 'Blog - Ahmed Kapadia' };
 
-  if (!blog) {
-    return {
-      title: 'Blog Not Found',
-    };
-  }
+    const { data: blog } = await supabase
+      .from('blogs')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single();
+
+    if (!blog) {
+      return {
+        title: 'Blog Not Found',
+      };
+    }
 
   const excerpt = blog.excerpt || 'Premium insights into Dubai luxury real estate market and investment opportunities.';
   const imageUrl = blog.featured_image || 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=1200';
@@ -72,28 +76,42 @@ export async function generateMetadata({ params }) {
       },
     },
   };
+} catch (error) {
+  console.error('Error in generateMetadata:', error);
+  return { title: 'Blog - Ahmed Kapadia' };
+}
 }
 
 export default async function BlogDetailPage({ params, searchParams }) {
   const { slug } = await params;
   const search = await searchParams;
-  const supabase = await createClient();
-  
-  // Check for preview mode
-  const isPreview = search?.preview === 'true' && search?.token === PREVIEW_TOKEN;
-  
-  // Fetch blog with appropriate published filter
-  const query = supabase
-    .from('blogs')
-    .select('*')
-    .eq('slug', slug);
-  
-  // Only filter by published if not in preview mode
-  if (!isPreview) {
-    query.eq('published', true);
+  let blog = null;
+  let isPreview = false;
+
+  try {
+    const supabase = await createClient();
+    
+    // Check for preview mode
+    isPreview = search?.preview === 'true' && search?.token === PREVIEW_TOKEN;
+    
+    if (supabase) {
+      // Fetch blog with appropriate published filter
+      const query = supabase
+        .from('blogs')
+        .select('*')
+        .eq('slug', slug);
+      
+      // Only filter by published if not in preview mode
+      if (!isPreview) {
+        query.eq('published', true);
+      }
+      
+      const { data } = await query.single();
+      blog = data;
+    }
+  } catch (e) {
+    console.warn(`Supabase not available for blog slug: ${slug}`);
   }
-  
-  const { data: blog } = await query.single();
 
   if (!blog) {
     notFound();

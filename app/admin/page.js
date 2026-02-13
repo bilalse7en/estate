@@ -3,6 +3,8 @@ import AdminCard from '@/components/admin/AdminCard';
 import Link from 'next/link';
 import { FileText, Inbox, TrendingUp, Users } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
 

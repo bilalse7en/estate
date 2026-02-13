@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { formatDate } from '@/lib/utils';
 import AdminCard from '@/components/admin/AdminCard';
-import { Mail, Phone, Home, Calendar, Inbox } from 'lucide-react';
+import { Mail, Phone, Home, Calendar, Inbox, Trash2, Eye, User } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminFormsPage() {
   const supabase = await createClient();

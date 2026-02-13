@@ -12,22 +12,36 @@ export async function middleware(request) {
     },
   });
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
+  // Basic validation to ensure it's not a Stripe key
+  if (supabaseKey && (supabaseKey.startsWith('sb_publishable_') || supabaseKey.startsWith('pk_'))) {
+    console.error('Middleware: Detected a Stripe key instead of a Supabase key');
+    return supabaseResponse;
+  }
+
+  let supabase = null;
+  try {
+    supabase = createServerClient(supabaseUrl, supabaseKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({
+            request,
+          });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        supabaseResponse = NextResponse.next({
-          request,
-        });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
-        );
-      },
-    },
-  });
+    });
+  } catch (error) {
+    console.error('Middleware: Supabase initialization failed:', error.message);
+    return supabaseResponse;
+  }
+
+  if (!supabase) return supabaseResponse;
 
   // Get session
   const {

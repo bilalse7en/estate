@@ -6,17 +6,27 @@ import ContactCTA from '@/components/landing/ContactCTA';
 import SectionDivider from '@/components/ui/SectionDivider';
 import { createClient } from '@/lib/supabase/server';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const supabase = await createClient();
+  let siteSettings = {};
   
-  // Get dynamic site settings
-  const { data: settingsData } = await supabase
-    .from('site_settings')
-    .select('content')
-    .eq('id', 'homepage')
-    .single();
-  
-  const siteSettings = settingsData?.content || {};
+  try {
+    const supabase = await createClient();
+    
+    if (supabase) {
+      // Get dynamic site settings
+      const { data: settingsData } = await supabase
+        .from('site_settings')
+        .select('content')
+        .eq('id', 'homepage')
+        .single();
+      
+      siteSettings = settingsData?.content || {};
+    }
+  } catch (e) {
+    console.warn('Supabase not available during homepage build');
+  }
   
   // Fallback data for all sections
   const about = siteSettings.about || {

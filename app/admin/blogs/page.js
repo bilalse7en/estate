@@ -4,13 +4,30 @@ import AdminCard from '@/components/admin/AdminCard';
 import Link from 'next/link';
 import { Plus, FileText, Eye, Edit, Trash2 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminBlogsPage() {
-  const supabase = await createClient();
-  
-  const { data: blogs, error } = await supabase
-    .from('blogs')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let blogs = [];
+  let error = null;
+
+  try {
+    const supabase = await createClient();
+    
+    if (supabase) {
+      const { data, error: fetchError } = await supabase
+        .from('blogs')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      blogs = data;
+      error = fetchError;
+    } else {
+      error = new Error('Supabase client could not be initialized. Please check your environment variables.');
+    }
+  } catch (e) {
+    console.error('Error in AdminBlogsPage:', e);
+    error = e;
+  }
 
   return (
     <div className="space-y-6">
