@@ -74,7 +74,7 @@ import { ToastProvider } from '@/components/ui/ToastProvider';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${syne.variable} ${outfit.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${syne.variable} ${outfit.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="flex flex-col min-h-screen transition-colors duration-300" suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>

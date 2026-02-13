@@ -4,7 +4,7 @@ import AdminCard from '@/components/admin/AdminCard';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 import { Loader2, Save, Eye, ArrowLeft } from 'lucide-react';
@@ -23,6 +23,7 @@ const EditorJSComponent = dynamic(() => import('@/components/admin/EditorJSCompo
 export default function NewBlogPage() {
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const { addToast } = useToast();
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -49,7 +50,7 @@ export default function NewBlogPage() {
     e.preventDefault();
     
     if (!title || !slug || !content.blocks || content.blocks.length === 0) {
-      alert('Please fill in all required fields');
+      addToast('Please fill in all required fields', 'error');
       return;
     }
 
@@ -68,11 +69,11 @@ export default function NewBlogPage() {
 
       if (error) throw error;
 
-      alert('Blog created successfully!');
+      addToast('Blog created successfully!', 'success');
       router.push('/admin/blogs');
     } catch (error) {
       console.error('Error creating blog:', error);
-      alert('Error creating blog: ' + error.message);
+      addToast('Error creating blog: ' + error.message, 'error');
     } finally {
       setLoading(false);
     }

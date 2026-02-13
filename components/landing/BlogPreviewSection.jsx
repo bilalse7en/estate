@@ -13,15 +13,21 @@ export default function BlogPreviewSection() {
 
   useEffect(() => {
     async function fetchBlogs() {
-      const { data } = await supabase
-        .from('blogs')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
-      
-      if (data) setBlogs(data);
-      setLoading(false);
+      try {
+        if (!supabase) return;
+        const { data } = await supabase
+          .from('blogs')
+          .select('*')
+          .eq('published', true)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        
+        if (data) setBlogs(data);
+      } catch (error) {
+        // Silently use default values
+      } finally {
+        setLoading(false);
+      }
     }
     fetchBlogs();
   }, []);

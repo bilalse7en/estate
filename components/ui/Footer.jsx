@@ -18,8 +18,13 @@ export default function Footer() {
 
   useEffect(() => {
     async function fetchContact() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-      if (data?.content?.contact) setContact(data.content.contact);
+      try {
+        if (!supabase) return;
+        const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
+        if (data?.content?.contact) setContact(data.content.contact);
+      } catch (error) {
+        // Silently use default values
+      }
     }
     fetchContact();
   }, []);

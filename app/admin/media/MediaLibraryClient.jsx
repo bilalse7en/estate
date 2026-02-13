@@ -5,9 +5,11 @@ import AdminCard from '@/components/admin/AdminCard';
 import { deleteMedia } from '@/lib/actions/media-actions';
 import { formatDate } from '@/lib/utils';
 import MediaUploader from '@/components/admin/MediaUploader';
+import { useToast } from '@/components/ui/ToastProvider';
 import { Upload, Image, Check, Copy, ExternalLink, Trash2 } from 'lucide-react';
 
 export default function MediaLibraryClient({ initialMedia }) {
+  const { addToast } = useToast();
   const [media, setMedia] = useState(initialMedia);
   const [showUploader, setShowUploader] = useState(false);
   const [deleting, setDeleting] = useState(null);
@@ -17,6 +19,7 @@ export default function MediaLibraryClient({ initialMedia }) {
   const handleUploadSuccess = (newMedia) => {
     setMedia([newMedia, ...media]);
     setShowUploader(false);
+    addToast('Media uploaded successfully', 'success');
   };
 
   const handleDelete = async (mediaId) => {
@@ -28,8 +31,9 @@ export default function MediaLibraryClient({ initialMedia }) {
 
     if (result.success) {
       setMedia(media.filter(m => m.id !== mediaId));
+      addToast('Media deleted successfully', 'success');
     } else {
-      alert('Error deleting media: ' + result.error);
+      addToast('Error deleting media: ' + result.error, 'error');
     }
   };
 

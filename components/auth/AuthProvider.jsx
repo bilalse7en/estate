@@ -14,40 +14,54 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
     // Check active sessions and sets the user
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, name')
-          .eq('id', session.user.id)
-          .single();
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user ?? null);
         
-        setIsAdmin(profile?.role === 'admin');
-        setUserName(profile?.name || session.user.email?.split('@')[0] || 'User');
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, name')
+            .eq('id', user.id)
+            .single();
+          
+          setIsAdmin(profile?.role === 'admin');
+          setUserName(profile?.name || user.email?.split('@')[0] || 'User');
+        }
+      } catch (error) {
+        console.error('AuthProvider checkUser error:', error);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     checkUser();
 
     // Listen for changes on auth state (sign in, sign out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role, name')
-          .eq('id', session.user.id)
-          .single();
-        
-        setIsAdmin(profile?.role === 'admin');
-        setUserName(profile?.name || session.user.email?.split('@')[0] || 'User');
+      if (currentUser) {
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, name')
+            .eq('id', currentUser.id)
+            .single();
+          
+          setIsAdmin(profile?.role === 'admin');
+          setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
+        } catch (error) {
+          console.error('AuthProvider onAuthStateChange profile error:', error);
+        }
       } else {
         setIsAdmin(false);
         setUserName('');
@@ -61,7 +75,9 @@ export const AuthProvider = ({ children }) => {
   }, [router]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     router.push('/');
   };
 

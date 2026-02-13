@@ -5,6 +5,7 @@ import AdminCard from '@/components/admin/AdminCard';
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
 import { Loader2, Save, Trash2, ArrowLeft } from 'lucide-react';
@@ -27,6 +28,7 @@ export default function EditBlogPage({ params }) {
 
   const router = useRouter();
   const { isAdmin } = useAuth();
+  const { addToast } = useToast();
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [excerpt, setExcerpt] = useState('');
@@ -60,7 +62,7 @@ export default function EditBlogPage({ params }) {
         }
       } catch (error) {
         console.error('Error loading blog:', error);
-        alert('Error loading blog');
+        addToast('Error loading blog', 'error');
         router.push('/admin/blogs');
       } finally {
         setLoading(false);
@@ -77,7 +79,7 @@ export default function EditBlogPage({ params }) {
     e.preventDefault();
     
     if (!title || !slug || !content.blocks || content.blocks.length === 0) {
-      alert('Please fill in all required fields');
+      addToast('Please fill in all required fields', 'error');
       return;
     }
 
@@ -98,11 +100,11 @@ export default function EditBlogPage({ params }) {
 
       if (error) throw error;
 
-      alert('Blog updated successfully!');
+      addToast('Blog updated successfully!', 'success');
       router.push('/admin/blogs');
     } catch (error) {
       console.error('Error updating blog:', error);
-      alert('Error updating blog: ' + error.message);
+      addToast('Error updating blog: ' + error.message, 'error');
     } finally {
       setSaving(false);
     }
@@ -121,11 +123,11 @@ export default function EditBlogPage({ params }) {
 
       if (error) throw error;
 
-      alert('Blog deleted successfully!');
+      addToast('Blog deleted successfully!', 'success');
       router.push('/admin/blogs');
     } catch (error) {
       console.error('Error deleting blog:', error);
-      alert('Error deleting blog: ' + error.message);
+      addToast('Error deleting blog: ' + error.message, 'error');
     }
   };
 

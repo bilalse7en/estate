@@ -20,35 +20,34 @@ import { useTheme } from '@/components/theme/ThemeProvider';
 export default function HeroSection() {
   const { addToast } = useToast();
   const { theme } = useTheme();
-  const [slides, setSlides] = useState([]);
+  const [slides, setSlides] = useState([
+    {
+      title: "Elevating Your Dubai Lifestyle",
+      subtitle: "Experience unparalleled service and exclusive access to the most prestigious properties in Dubai.",
+      image: "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?auto=format&fit=crop&q=80&w=2000"
+    },
+    {
+      title: "Uncompromising Integrity & Vision",
+      subtitle: "Securing your legacy through expert market intelligence and bespoke acquisition strategies.",
+      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000"
+    }
+  ]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHero() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-        if (error) throw error;
-        
-        if (data?.content?.hero_slides) {
+        if (!error && data?.content?.hero_slides) {
           setSlides(data.content.hero_slides);
-        } else {
-          setSlides([
-            {
-              title: "Elevating Your Dubai Lifestyle",
-              subtitle: "Experience unparalleled service and exclusive access to the most prestigious properties in Dubai.",
-              image: "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?auto=format&fit=crop&q=80&w=2000"
-            },
-            {
-              title: "Uncompromising Integrity & Vision",
-              subtitle: "Securing your legacy through expert market intelligence and bespoke acquisition strategies.",
-              image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000"
-            }
-          ]);
         }
       } catch (err) {
-        console.error('Loader stuck prevention: ', err);
-        // Ensure defaults are set if fetch fails
-        setSlides([]); 
+        // Silent catch – slides are already initialized with fallbacks
       } finally {
         setLoading(false);
       }

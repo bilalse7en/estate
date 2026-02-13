@@ -39,12 +39,17 @@ export default function ServicesSection() {
 
   useEffect(() => {
     async function fetchHeader() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-      if (data?.content?.services) {
-        setHeader({
-          ...data.content.services,
-          title: "BEYOND THE CONVENTIONAL"
-        });
+      try {
+        if (!supabase) return;
+        const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
+        if (data?.content?.services) {
+          setHeader({
+            ...data.content.services,
+            title: "BEYOND THE CONVENTIONAL"
+          });
+        }
+      } catch (error) {
+        // Silently use default values
       }
     }
     fetchHeader();
@@ -104,7 +109,6 @@ export default function ServicesSection() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
                 onHoverStart={() => setHoveredIndex(index)}
                 onHoverEnd={() => setHoveredIndex(null)}
                 animate={{
@@ -186,7 +190,6 @@ function StatCard({ label, value, prefix = "", suffix = "", icon, delay = 0, isH
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, delay }}
       onHoverStart={onHover}
       onHoverEnd={onLeave}
       animate={{

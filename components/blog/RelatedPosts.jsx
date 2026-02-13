@@ -4,16 +4,25 @@ import { formatDate } from '@/lib/utils';
 import { Calendar, ArrowRight } from 'lucide-react';
 
 export default async function RelatedPosts({ currentSlug, limit = 3 }) {
-  const supabase = await createClient();
+  let relatedPosts = [];
+  try {
+    const supabase = await createClient();
+    if (!supabase) return null;
 
-  // Fetch related posts (excluding current post)
-  const { data: relatedPosts } = await supabase
-    .from('blogs')
-    .select('*')
-    .eq('published', true)
-    .neq('slug', currentSlug)
-    .order('created_at', { ascending: false })
-    .limit(limit);
+    // Fetch related posts (excluding current post)
+    const { data } = await supabase
+      .from('blogs')
+      .select('*')
+      .eq('published', true)
+      .neq('slug', currentSlug)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    relatedPosts = data || [];
+  } catch (error) {
+    console.error('RelatedPosts fetch error:', error);
+    return null;
+  }
 
   if (!relatedPosts || relatedPosts.length === 0) return null;
 
