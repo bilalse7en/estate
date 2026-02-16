@@ -12,9 +12,8 @@ export async function POST(request) {
 
     // Verify user is authenticated and admin
     const supabase = await createClient();
-    const { data: { session } } = await supabase.auth.getSession();
-
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -22,8 +21,8 @@ export async function POST(request) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', session.user.id)
-      .single();
+      .eq('id', user.id)
+      .maybeSingle();
 
     if (profile?.role !== 'admin') {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
@@ -61,10 +60,10 @@ export async function POST(request) {
     const { data: userData } = await supabase
       .from('profiles')
       .select('name')
-      .eq('id', session.user.id)
-      .single();
+      .eq('id', user.id)
+      .maybeSingle();
 
-    const uploaderName = userData?.name || session.user.email?.split('@')[0] || 'Unknown';
+    const uploaderName = userData?.name || user.email?.split('@')[0] || 'Unknown';
 
     // Create record in media table
     await supabase
@@ -76,7 +75,7 @@ export async function POST(request) {
         public_url: publicUrl,
         file_size: file.size,
         mime_type: file.type,
-        uploaded_by: session.user.id,
+        uploaded_by: user.id,
         uploader_name: uploaderName
       });
 

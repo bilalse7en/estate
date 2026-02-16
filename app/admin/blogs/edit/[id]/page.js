@@ -47,7 +47,7 @@ export default function EditBlogPage({ params }) {
           .from('blogs')
           .select('*')
           .eq('id', blogIdFromParams)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -61,6 +61,7 @@ export default function EditBlogPage({ params }) {
           setPublished(data.published || false);
         }
       } catch (error) {
+        if (error.name === 'AbortError') return;
         console.error('Error loading blog:', error);
         addToast('Error loading blog', 'error');
         router.push('/admin/blogs');

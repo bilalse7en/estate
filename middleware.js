@@ -43,28 +43,28 @@ export async function middleware(request) {
 
   if (!supabase) return supabaseResponse;
 
-  // Get session
+  // Get user info
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Protect /submit-form and /admin routes
   if (
     request.nextUrl.pathname.startsWith('/submit-form') ||
     request.nextUrl.pathname.startsWith('/admin')
   ) {
-    if (!session) {
+    if (!user) {
       const redirectUrl = new URL('/auth/signin', request.url);
       return NextResponse.redirect(redirectUrl);
     }
   }
 
   // Check admin access
-  if (request.nextUrl.pathname.startsWith('/admin') && session) {
+  if (request.nextUrl.pathname.startsWith('/admin') && user) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single();
 
     if (profile?.role !== 'admin') {

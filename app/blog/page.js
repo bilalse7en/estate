@@ -81,10 +81,10 @@ export default async function BlogPage() {
                 </div>
                 <Link
                   href={`/blog/${featuredBlog.slug}`}
-                  className="group glass rounded-3xl overflow-hidden border border-[var(--glass-border)] hover:border-primary-500/50 transition-all duration-500 hover:shadow-2xl block"
+                  className="group glass rounded-3xl overflow-hidden gradient-border-brown hover:border-primary-500/50 transition-all duration-500 hover:shadow-2xl block"
                 >
                   <div className="grid md:grid-cols-2 gap-0">
-                    {featuredBlog.featured_image && (
+                    {featuredBlog.featured_image ? (
                       <div className="relative h-80 md:h-full overflow-hidden">
                         <img
                           src={featuredBlog.featured_image}
@@ -92,6 +92,15 @@ export default async function BlogPage() {
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[var(--bg-main)] to-transparent opacity-60" />
+                      </div>
+                    ) : (
+                      <div className="relative h-80 md:h-full overflow-hidden bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-secondary)] flex items-center justify-center">
+                        <div className="text-center p-8">
+                          <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-[var(--color-gold)]/10 flex items-center justify-center border border-[var(--color-gold)]/20">
+                            <TrendingUp className="w-10 h-10 text-[var(--color-gold)]" />
+                          </div>
+                          <p className="text-[var(--text-muted)] font-semibold text-sm uppercase tracking-wider">Image Not Updated Yet</p>
+                        </div>
                       </div>
                     )}
                     <div className="p-8 md:p-12 flex flex-col justify-center">
@@ -136,10 +145,10 @@ export default async function BlogPage() {
                     <Link
                       key={blog.id}
                       href={`/blog/${blog.slug}`}
-                      className="group glass rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 border border-[var(--glass-border)] hover:border-primary-500/30 animate-fade-in-up"
+                      className="group glass rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 gradient-border-brown hover:border-primary-500/30 animate-fade-in-up"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      {blog.featured_image && (
+                      {blog.featured_image ? (
                         <div className="relative h-48 overflow-hidden">
                           <img
                             src={blog.featured_image}
@@ -147,6 +156,15 @@ export default async function BlogPage() {
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        </div>
+                      ) : (
+                        <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-secondary)] flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-[var(--color-gold)]/10 flex items-center justify-center border border-[var(--color-gold)]/20">
+                              <TrendingUp className="w-8 h-8 text-[var(--color-gold)]" />
+                            </div>
+                            <p className="text-[var(--text-muted)] font-semibold text-xs uppercase tracking-wider px-4">Image Not Updated</p>
+                          </div>
                         </div>
                       )}
                       

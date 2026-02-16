@@ -94,8 +94,9 @@ export default function Footer() {
             © {currentYear} Ahmed Kapadia. Exclusive Assets Group.
           </p>
           <div className="flex space-x-10 text-[9px] uppercase tracking-[0.2em] font-bold text-[var(--text-muted)]">
-            <a href="#" className="hover:text-primary-500 transition-colors">Privacy Charter</a>
-            <a href="#" className="hover:text-primary-500 transition-colors">Terms of Engagement</a>
+            <Link href="/page/privacy-charter" className="hover:text-primary-500 transition-colors">Privacy Charter</Link>
+            <Link href="/page/terms-of-engagement" className="hover:text-primary-500 transition-colors">Terms of Engagement</Link>
+            <Link href="/page/contact-protocol" className="hover:text-primary-500 transition-colors">Contact Protocol</Link>
           </div>
         </div>
       </div>

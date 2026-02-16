@@ -66,8 +66,8 @@
     --text-inverse: #0d1117;
     
     /* Boarder & Dividers (Perfected Light Gray for Visibility) */
-    --border-subtle: rgba(240, 246, 252, 0.25); /* High-definition internal lines */
-    --border-strong: rgba(240, 246, 252, 0.45); /* Clear architectural separation */
+    --border-subtle: #f0f6fc73; /* High-definition internal lines */
+    --border-strong: #f0f6fc73; /* Clear architectural separation */
     
     /* Interactive States */
     --hover-bg: rgba(177, 186, 196, 0.12);
@@ -75,7 +75,7 @@
     
     /* Glassmorphism */
     --glass-bg: rgba(22, 27, 34, 0.7);
-    --glass-border: rgba(240, 246, 252, 0.1);
+    --glass-border: #f0f6fc73;
     
     /* Accents */
     --dot-color: rgba(255, 255, 255, 0.03);
@@ -189,6 +189,23 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
+/* Admin Panel UI Components */
+.admin-label {
+  @apply block text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2 ml-1;
+}
+
+.admin-input {
+  @apply w-full px-4 py-3 bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] rounded-xl text-sm text-[var(--text-main)] transition-all duration-200 focus:border-[var(--color-gold)] focus:ring-1 focus:ring-[var(--color-gold)] outline-none placeholder:text-[var(--text-muted)]/50;
+}
+
+.dark .admin-input {
+  @apply bg-[#1c2128] border-[var(--border-subtle)];
+}
+
+.admin-input:disabled {
+  @apply opacity-50 cursor-not-allowed bg-[var(--bg-secondary)];
+}
+
 /* Theme-Aware Gradient Text */
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-700 via-primary-600 to-primary-500;
@@ -280,6 +297,29 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   -webkit-mask-composite: destination-out;
   pointer-events: none;
   z-index: 10;
+}
+
+/* Gradient Brown Border Utility - For Navbar and Cards */
+.gradient-border-brown {
+  @apply border border-[var(--glass-border)];
+}
+
+.dark .gradient-border-brown {
+  @apply border-0!;
+}
+
+.dark .gradient-border-brown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #b87333, #a3612b, #b87333);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* Custom Scrollbar */

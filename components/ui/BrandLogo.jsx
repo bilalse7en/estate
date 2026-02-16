@@ -24,7 +24,7 @@ export default function BrandLogo({ className = '', size = 'md', variant = 'auto
       <img 
         src={logoUrl} 
         alt="Ahmed Kapadia Logo" 
-        className={`${sizeClasses[size] || sizeClasses.md} w-auto object-contain transition-all duration-300 ${filterClass}`}
+        className={`h-[75px] w-auto object-contain transition-all duration-300 ${filterClass}`}
       />
     </div>
   );

@@ -60,8 +60,14 @@ export default function PortfolioSection() {
               <span className="text-primary-600 font-bold tracking-[0.4em] text-[10px] uppercase block">Curated Listings</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-display font-bold text-[var(--text-main)] leading-tight tracking-tighter">
-              {header.title.split(' ').slice(0, -2).join(' ')} <br />
-              <span className="gradient-text">{header.title.split(' ').slice(-2).join(' ')}</span>
+              {header.title.split(' ').length > 2 ? (
+                <>
+                  {header.title.split(' ').slice(0, -2).join(' ')} <br />
+                  <span className="gradient-text">{header.title.split(' ').slice(-2).join(' ')}</span>
+                </>
+              ) : (
+                <span className="gradient-text">{header.title}</span>
+              )}
             </h2>
           </div>
           <p className="text-[var(--text-muted)] md:max-w-xs text-sm leading-relaxed md:text-right">

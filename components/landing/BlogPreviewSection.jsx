@@ -12,9 +12,19 @@ export default function BlogPreviewSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000); // 2 second timeout
+
     async function fetchBlogs() {
       try {
-        if (!supabase) return;
+        if (!supabase) {
+          clearTimeout(timeout);
+          setLoading(false);
+          return;
+        }
+        
         const { data } = await supabase
           .from('blogs')
           .select('*')
@@ -26,10 +36,13 @@ export default function BlogPreviewSection() {
       } catch (error) {
         // Silently use default values
       } finally {
+        clearTimeout(timeout);
         setLoading(false);
       }
     }
     fetchBlogs();
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (loading || blogs.length === 0) return null;

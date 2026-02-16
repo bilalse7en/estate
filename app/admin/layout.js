@@ -7,20 +7,31 @@ export default async function AdminLayout({ children }) {
   const supabase = await createClient();
   
   // Check authentication
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session) {
+  if (!user) {
     redirect('/auth/signin');
   }
 
   // Check admin role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
+  let isAuthorized = false;
+  try {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle();
 
-  if (profile?.role !== 'admin') {
+    if (profileError) {
+      console.error('AdminLayout profile error:', profileError);
+    } else {
+      isAuthorized = profile?.role === 'admin';
+    }
+  } catch (err) {
+    console.error('AdminLayout auth exception:', err);
+  }
+
+  if (!isAuthorized) {
     redirect('/');
   }
 

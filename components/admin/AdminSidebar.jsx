@@ -10,6 +10,7 @@ export default function AdminSidebar() {
   const navItems = [
     { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/blogs', icon: FileText, label: 'Blog Posts' },
+    { href: '/admin/pages', icon: FileText, label: 'Site Pages' },
     { href: '/admin/media', icon: Image, label: 'Media Library' },
     { href: '/admin/forms', icon: Inbox, label: 'Client Forms' },
     { href: '/admin/settings', icon: Settings, label: 'Site Settings' },

@@ -22,7 +22,7 @@ export async function POST(request) {
       .from('blogs')
       .select('id, slug, title, published')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     if (error || !blog) {
       return NextResponse.json(

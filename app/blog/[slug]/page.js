@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
       .select('*')
       .eq('slug', slug)
       .eq('published', true)
-      .single();
+      .maybeSingle();
 
     if (!blog) {
       return {
@@ -106,7 +106,7 @@ export default async function BlogDetailPage({ params, searchParams }) {
         query.eq('published', true);
       }
       
-      const { data } = await query.single();
+      const { data } = await query.maybeSingle();
       blog = data;
     }
   } catch (e) {
@@ -250,13 +250,23 @@ export default async function BlogDetailPage({ params, searchParams }) {
             {/* Main Content */}
             <div className="lg:col-span-8">
               {/* Featured Image */}
-              {blog.featured_image && (
+              {blog.featured_image ? (
                 <div className="mb-12 rounded-3xl overflow-hidden shadow-2xl">
                   <img 
                     src={blog.featured_image} 
                     alt={blog.title}
                     className="w-full h-[400px] md:h-[500px] object-cover"
                   />
+                </div>
+              ) : (
+                <div className="mb-12 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-secondary)] h-[300px] md:h-[400px] flex items-center justify-center gradient-border-brown">
+                  <div className="text-center p-8">
+                    <div className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-[var(--color-gold)]/10 flex items-center justify-center border-2 border-[var(--color-gold)]/30">
+                      <Calendar className="w-12 h-12 text-[var(--color-gold)]" />
+                    </div>
+                    <p className="text-[var(--text-muted)] font-bold text-lg uppercase tracking-wider">Featured Image Not Updated Yet</p>
+                    <p className="text-[var(--text-muted)] text-sm mt-2">Content continues below</p>
+                  </div>
                 </div>
               )}
 

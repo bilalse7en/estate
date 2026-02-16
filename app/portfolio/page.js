@@ -13,23 +13,127 @@ export default function PortfolioPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadProfile() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-      if (data?.content?.profile) {
-        setProfile(data.content.profile);
-      }
+    // Timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      console.warn('Portfolio data fetch timeout - using fallback');
+      setProfile({
+        name: "Ahmed Hameed Kapadia",
+        title: "Premium Real Estate Investment Consultant",
+        bio: "With over a decade of experience in the Dubai luxury market, I specialize in securing high-value assets for a global clientele.",
+        image: "https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp",
+        stats: [
+          { label: "Market Dominance", value: "12+ Years" },
+          { label: "Portfolio Value", value: "$1.2B+" },
+          { label: "Client Satisfaction", value: "100%" }
+        ],
+        milestones: [
+          { year: "2024", title: "Senior Investment Partner", company: "Exclusive Assets Group", description: "Spearheading luxury acquisitions." }
+        ],
+        skills: ["Strategic Negotiation", "Market Intelligence"],
+        socials: { linkedin: "", twitter: "", instagram: "" }
+      });
       setLoading(false);
+    }, 3000); // 3 second timeout
+
+    async function loadProfile() {
+      try {
+        if (!supabase) {
+          // No Supabase available, use fallback immediately
+          clearTimeout(timeout);
+          setProfile({
+            name: "Ahmed Hameed Kapadia",
+            title: "Premium Real Estate Investment Consultant",
+            bio: "With over a decade of experience in the Dubai luxury market, I specialize in securing high-value assets for a global clientele.",
+            image: "https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp",
+            stats: [
+              { label: "Market Dominance", value: "12+ Years" },
+              { label: "Portfolio Value", value: "$1.2B+" },
+              { label: "Client Satisfaction", value: "100%" }
+            ],
+            milestones: [
+              { year: "2024", title: "Senior Investment Partner", company: "Exclusive Assets Group", description: "Spearheading luxury acquisitions." }
+            ],
+            skills: ["Strategic Negotiation", "Market Intelligence"],
+            socials: { linkedin: "", twitter: "", instagram: "" }
+          });
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
+        
+        clearTimeout(timeout); // Clear timeout on successful fetch
+        
+        if (error) throw error;
+        
+        if (data?.content?.profile) {
+          setProfile(data.content.profile);
+        } else {
+          // Fallback if no profile in DB
+          setProfile({
+            name: "Ahmed Hameed Kapadia",
+            title: "Premium Real Estate Investment Consultant",
+            bio: "With over a decade of experience in the Dubai luxury market, I specialize in securing high-value assets for a global clientele.",
+            image: "https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp",
+            stats: [
+              { label: "Market Dominance", value: "12+ Years" },
+              { label: "Portfolio Value", value: "$1.2B+" },
+              { label: "Client Satisfaction", value: "100%" }
+            ],
+            milestones: [
+              { year: "2024", title: "Senior Investment Partner", company: "Exclusive Assets Group", description: "Spearheading luxury acquisitions." }
+            ],
+            skills: ["Strategic Negotiation", "Market Intelligence"],
+            socials: { linkedin: "", twitter: "", instagram: "" }
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        clearTimeout(timeout); // Clear timeout on error
+        console.error('Portfolio load error:', err);
+        // Apply fallback on error to ensure page always renders
+        setProfile({
+          name: "Ahmed Hameed Kapadia",
+          title: "Premium Real Estate Investment Consultant",
+          bio: "With over a decade of experience in the Dubai luxury market, I specialize in securing high-value assets for a global clientele.",
+          image: "https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp",
+          stats: [
+            { label: "Market Dominance", value: "12+ Years" },
+            { label: "Portfolio Value", value: "$1.2B+" },
+            { label: "Client Satisfaction", value: "100%" }
+          ],
+          milestones: [
+            { year: "2024", title: "Senior Investment Partner", company: "Exclusive Assets Group", description: "Spearheading luxury acquisitions." }
+          ],
+          skills: ["Strategic Negotiation", "Market Intelligence"],
+          socials: { linkedin: "", twitter: "", instagram: "" }
+        });
+        setLoading(false);
+      }
     }
+    
     loadProfile();
+
+    // Cleanup timeout on unmount
+    return () => clearTimeout(timeout);
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center">
-      <div className="w-12 h-12 border-t-2 border-primary-500 rounded-full animate-spin" />
+    <div className="min-h-screen bg-[var(--bg-main)] flex flex-col items-center justify-center">
+      <div className="w-16 h-16 border-t-2 border-b-2 border-primary-500 rounded-full animate-spin mb-4" />
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--text-muted)] animate-pulse">Establishing Secure Connection</p>
     </div>
   );
 
-  if (!profile) return null;
+  if (!profile) return (
+    <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center p-10 text-center">
+      <div className="glass p-12 rounded-3xl border border-[var(--glass-border)] max-w-lg">
+        <h2 className="text-2xl font-display font-bold text-[var(--text-main)] mb-4">Configuration Required</h2>
+        <p className="text-[var(--text-muted)] mb-8">The professional profile has not been initialized. Please configure the CMS Master Terminal.</p>
+        <a href="/admin/settings" className="btn-premium px-8 py-3">Access Terminal</a>
+      </div>
+    </div>
+  );
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -66,8 +170,14 @@ export default function PortfolioPage() {
               </motion.div>
               
               <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-display font-bold text-[var(--text-main)] leading-[1.1] mb-6">
-                {profile.name.split(' ')[0]} <br />
-                <span className="gradient-text">{profile.name.split(' ').slice(1).join(' ')}</span>
+                {profile.name.split(' ').length > 1 ? (
+                  <>
+                    {profile.name.split(' ')[0]} <br />
+                    <span className="gradient-text">{profile.name.split(' ').slice(1).join(' ')}</span>
+                  </>
+                ) : (
+                  <span className="gradient-text">{profile.name}</span>
+                )}
               </motion.h1>
               
               <motion.p variants={itemVariants} className="text-xl md:text-2xl text-[var(--text-muted)] font-light max-w-xl mb-10 leading-relaxed italic">
@@ -120,7 +230,7 @@ export default function PortfolioPage() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="glass p-8 rounded-3xl border border-[var(--glass-border)] flex flex-col justify-between h-full group hover:border-primary-500/50 transition-colors"
+                className="glass p-8 rounded-3xl gradient-border-brown flex flex-col justify-between h-full group hover:border-primary-500/50 transition-colors"
               >
                 <TrendingUp className="w-8 h-8 text-primary-500 mb-6 group-hover:scale-110 transition-transform" />
                 <div>
@@ -198,7 +308,7 @@ export default function PortfolioPage() {
                 className={`flex flex-col md:flex-row gap-8 relative items-center ${i % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
               >
                 <div className="flex-1 w-full">
-                  <div className="glass p-8 rounded-3xl border border-[var(--glass-border)] relative group hover:border-primary-500/50 transition-colors">
+                  <div className="glass p-8 rounded-3xl gradient-border-brown relative group hover:border-primary-500/50 transition-colors">
                     <span className="text-primary-500 font-display font-bold text-lg mb-2 block">{m.year}</span>
                     <h3 className="text-xl font-bold text-[var(--text-main)] mb-1">{m.title}</h3>
                     <p className="text-[10px] uppercase tracking-widest text-[var(--color-gold)] font-bold mb-4">{m.company}</p>

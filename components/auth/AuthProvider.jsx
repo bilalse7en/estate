@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
     // Check active sessions and sets the user
     const checkUser = async () => {
       try {
+        if (!supabase) return;
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user ?? null);
         
@@ -47,8 +48,20 @@ export const AuthProvider = ({ children }) => {
     checkUser();
 
     // Listen for changes on auth state (sign in, sign out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (!supabase) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const currentUser = session?.user ?? null;
+      
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAdmin(false);
+        setUserName('');
+        setLoading(false);
+        router.push('/');
+        router.refresh();
+        return;
+      }
+
       setUser(currentUser);
       
       if (currentUser) {
@@ -57,12 +70,14 @@ export const AuthProvider = ({ children }) => {
             .from('profiles')
             .select('role, name')
             .eq('id', currentUser.id)
-            .single();
+            .maybeSingle();
           
           setIsAdmin(profile?.role === 'admin');
           setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
         } catch (error) {
-          console.error('AuthProvider onAuthStateChange profile error:', error);
+          if (error.name !== 'AbortError') {
+            console.error('AuthProvider onAuthStateChange profile error:', error);
+          }
         }
       } else {
         setIsAdmin(false);
@@ -70,17 +85,31 @@ export const AuthProvider = ({ children }) => {
       }
       
       setLoading(false);
-      router.refresh();
+      
+      if (event === 'SIGNED_IN') {
+        router.refresh();
+      }
     });
 
     return () => subscription.unsubscribe();
   }, [router]);
 
   const signOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
+    try {
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+      // Reset local state just in case
+      setUser(null);
+      setIsAdmin(false);
+      setUserName('');
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Fallback
+      window.location.href = '/';
     }
-    router.push('/');
   };
 
   return (

@@ -20,7 +20,7 @@ export default async function HomePage() {
         .from('site_settings')
         .select('content')
         .eq('id', 'homepage')
-        .single();
+        .maybeSingle();
       
       siteSettings = settingsData?.content || {};
     }

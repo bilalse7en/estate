@@ -35,8 +35,14 @@ export default function HeroSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Timeout to prevent delays
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000); // 2 second timeout
+
     async function fetchHero() {
       if (!supabase) {
+        clearTimeout(timeout);
         setLoading(false);
         return;
       }
@@ -49,10 +55,13 @@ export default function HeroSection() {
       } catch (err) {
         // Silent catch – slides are already initialized with fallbacks
       } finally {
+        clearTimeout(timeout);
         setLoading(false);
       }
     }
     fetchHero();
+
+    return () => clearTimeout(timeout);
   }, []);
 
   if (loading && slides.length === 0) {

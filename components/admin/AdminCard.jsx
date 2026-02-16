@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function AdminCard({ title, children, actions, className = '', footer }) {
   return (
-    <div className={`admin-card flex flex-col ${className}`}>
+    <div className={`admin-card gradient-border-brown flex flex-col ${className}`}>
       {/* Card Header (Optional) */}
       {(title || actions) && (
         <div className="px-4 py-3 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--bg-tertiary)]/30">
