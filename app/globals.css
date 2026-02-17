@@ -199,6 +199,94 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   @apply from-primary-300 via-primary-400 to-primary-500;
 }
 
+/* ============================================================================
+   PROFESSIONAL GLASS EFFECT SYSTEM
+   Simple, powerful, consistent - only 3 levels needed
+   ============================================================================ */
+
+/* 
+ * GLASS (Default) - The standard glass effect
+ * Use for: Navbar, modals, dropdowns, general backgrounds
+ * Blur: 28px | Opacity: 50% (reduced for visibility!)
+ */
+.glass {
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(31, 35, 40, 0.12);
+}
+
+.dark .glass {
+  background: rgba(13, 17, 23, 0.5) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(240, 246, 252, 0.15);
+}
+
+/* 
+ * GLASS SUBTLE - Light blur for subtle backgrounds
+ * Use for: Secondary elements, overlays, less prominent areas
+ * Blur: 20px | Opacity: 40%
+ */
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(20px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
+  border: 1px solid rgba(31, 35, 40, 0.1);
+}
+
+.dark .glass-subtle {
+  background: rgba(13, 17, 23, 0.4) !important;
+  backdrop-filter: blur(20px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(170%) !important;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+}
+
+/* 
+ * GLASS STRONG - Heavy blur for maximum readability
+ * Use for: Text-heavy content, cards, hero sections, critical content
+ * Blur: 36px | Opacity: 65%
+ */
+.glass-strong {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(36px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(190%) !important;
+  border: 1px solid rgba(31, 35, 40, 0.12);
+}
+
+.dark .glass-strong {
+  background: rgba(13, 17, 23, 0.65) !important;
+  backdrop-filter: blur(36px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(190%) !important;
+  border: 1px solid rgba(240, 246, 252, 0.18);
+}
+
+/* 
+ * Optional: Hover state for interactive glass elements (cards, buttons)
+ * Apply manually when needed: class="glass-strong hover:glass-strong-hover"
+ */
+.glass-strong:hover,
+.glass-strong-hover:hover {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  box-shadow: 0 12px 40px rgba(31, 35, 40, 0.08);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-strong:hover,
+.dark .glass-strong-hover:hover {
+  background: rgba(13, 17, 23, 0.75) !important;
+  backdrop-filter: blur(40px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(200%) !important;
+  box-shadow: 0 12px 40px rgba(184, 115, 51, 0.12);
+}
+
+/* ============================================================================
+   END GLASS EFFECTS - That's all you need!
+   ============================================================================ */
+
 /* Compact Admin Buttons */
 .btn-premium {
   @apply relative overflow-hidden transition-all duration-200 active:scale-[0.98] px-4 py-2 rounded-lg font-semibold text-xs tracking-wide flex items-center justify-center shadow-sm;

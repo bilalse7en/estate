@@ -64,9 +64,16 @@ export default function Navbar() {
   // Logic for Dynamic Background and Text Colors
   // On landing page: starts transparent with white text, becomes glass with theme-aware text
   // On other pages: starts with more opacity/glass and theme-aware text immediately
-  const navBgClass = isLandingPage 
+  
+  // Desktop navbar background (with margins and rounded corners)
+  const desktopNavBgClass = isLandingPage 
     ? (isScrolled ? 'glass mx-4 mt-4 rounded-2xl shadow-2xl border border-[var(--glass-border)]' : 'bg-transparent')
-    : ('glass-light md:glass mx-4 mt-4 rounded-2xl border border-[var(--glass-border)] shadow-xl');
+    : ('glass mx-4 mt-4 rounded-2xl border border-[var(--glass-border)] shadow-xl');
+  
+  // Mobile navbar background (NO margins, full width, theme-aware glass)
+  const mobileNavBgClass = isLandingPage
+    ? (isScrolled ? 'glass shadow-xl' : 'bg-transparent')
+    : 'glass shadow-xl';
 
   const navTextColorClass = (isLandingPage && !isScrolled)
     ? 'text-white' // Landing page hero is dark, so white text looks great
@@ -78,9 +85,9 @@ export default function Navbar() {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${navBgClass}`}
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${mobileNavBgClass} md:${desktopNavBgClass}`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex justify-between items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4 flex justify-between items-center min-h-[72px]">
         {/* LOGO */}
         <Link href="/" className="group flex items-center shrink-0">
           <BrandLogo 
@@ -234,9 +241,9 @@ export default function Navbar() {
             {/* Premium Glass Backdrop with Blur */}
             <div className="absolute inset-0 glass backdrop-blur-3xl z-0 border-r-4 border-primary-500/10" />
             
-            {/* Scrollable Content Container */}
-            <div className="relative z-10 flex flex-col h-full overflow-y-auto">
-              {/* Header with Close Button */}
+            {/* Scrollable Content Container - Full Height */}
+            <div className="relative z-10 flex flex-col h-full min-h-screen overflow-y-auto">
+              {/* Header with Logo and Close Button */}
               <div className="flex justify-between items-center p-6 pb-4 flex-shrink-0">
                 <BrandLogo size="sm" variant={theme === 'light' ? 'dark' : 'light'} />
                 <button 
@@ -248,7 +255,7 @@ export default function Navbar() {
               </div>
 
               {/* Main Menu Content */}
-              <div className="flex flex-col px-6 pb-6 space-y-6 flex-1">
+              <div className="flex flex-col px-6 pb-6 space-y-6 flex-1 justify-between">
                 {/* Navigation Links - Compact */}
                 <div className="space-y-3 pt-4">
                   {navLinks.map((link, i) => (
