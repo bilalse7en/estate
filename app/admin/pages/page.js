@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import AdminCard from '@/components/admin/AdminCard';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Shield, FileText, PhoneCall, Building2, Edit, Loader2, CheckCircle, Globe, Eye } from 'lucide-react';
+import { Shield, FileText, PhoneCall, Building2, Edit, Loader2, CheckCircle, Eye } from 'lucide-react';
 import { useToast } from '@/components/ui/ToastProvider';
 
 export default function AdminPagesPage() {
@@ -63,98 +63,111 @@ export default function AdminPagesPage() {
           published: row.content.published !== false
         };
       });
-      setPages(statusMap);
+      
+      // Auto-initialize missing pages on first load
+      const missingPages = corePages.filter(page => !statusMap[page.slug]);
+      
+      if (missingPages.length > 0) {
+        console.log('Auto-initializing missing pages:', missingPages.map(p => p.title));
+        await initializePages(missingPages);
+        // Reload after initialization
+        const { data: refreshedData } = await supabase
+          .from('site_settings')
+          .select('id, content')
+          .like('id', 'page_%');
+        
+        const refreshedMap = {};
+        (refreshedData || []).forEach(row => {
+          refreshedMap[row.id.replace('page_', '')] = {
+            exists: true,
+            published: row.content.published !== false
+          };
+        });
+        setPages(refreshedMap);
+      } else {
+        setPages(statusMap);
+      }
     } catch (e) {
       if (e.name === 'AbortError' || e.message?.includes('AbortError')) return;
-      console.error('Error synchronizing inventory:', e);
-      addToast('Error synchronizing page inventory', 'error');
+      console.error('Error loading pages:', e);
+      addToast('Error loading page status', 'error');
     } finally {
       clearTimeout(timeout);
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadPageStatus();
-  }, []);
-
-  const handleInitializeDefaults = async () => {
-    const timeout = setTimeout(() => {
-      setLoading(false);
-      addToast('Operation timeout - please try again', 'error');
-    }, 3000);
-
-    setLoading(true);
+  const initializePages = async (pagesToInit) => {
     try {
-      const defaults = [
-        {
-          id: 'page_privacy-charter',
+      const defaults = pagesToInit.map(page => {
+        const blocks = getDefaultContent(page.slug);
+        return {
+          id: `page_${page.slug}`,
           content: {
-            title: 'Privacy Charter',
+            title: page.title,
             published: true,
             updated_at: new Date().toISOString(),
-            blocks: [
-              { type: 'header', data: { text: 'Information Privacy & Data Protection', level: 1 } },
-              { type: 'paragraph', data: { text: 'At Ahmed Kapadia Real Estate, we consider the protection of your personal and financial information to be of paramount importance. This Privacy Charter outlines our uncompromising commitment to data security and transparency.' } },
-              { type: 'header', data: { text: 'Data Collection & Strategic Use', level: 2 } },
-              { type: 'paragraph', data: { text: 'We collect data solely to enhance your investment journey. This includes information provided through inquiry forms, consultation sessions, and digital interactions. We utilize institutional-grade encryption to ensure that your private portfolio details remain strictly confidential.' } }
-            ]
+            blocks
           }
-        },
-        {
-          id: 'page_terms-of-engagement',
-          content: {
-            title: 'Terms of Engagement',
-            published: true,
-            updated_at: new Date().toISOString(),
-            blocks: [
-              { type: 'header', data: { text: 'Strategic Engagement Framework', level: 1 } },
-              { type: 'paragraph', data: { text: 'The following terms outline the professional relationship between Ahmed Kapadia Real Estate and our global clientele. By engaging our services, you agree to a standard of excellence and mutual integrity.' } }
-            ]
-          }
-        },
-        {
-          id: 'page_contact-protocol',
-          content: {
-            title: 'Contact Protocol',
-            published: true,
-            updated_at: new Date().toISOString(),
-            blocks: [
-              { type: 'header', data: { text: 'Initiate Your Legacy', level: 1 } },
-              { type: 'paragraph', data: { text: 'Whether you are seeking to acquire a trophy asset in Palm Jumeirah or diversify your commercial portfolio in Downtown Dubai, our professional team is ready to assist.' } }
-            ]
-          }
-        },
-        {
-          id: 'page_portfolio',
-          content: {
-            title: 'Investment Portfolio',
-            published: true,
-            updated_at: new Date().toISOString(),
-            blocks: [
-              { type: 'header', data: { text: 'Selected Assets of Distinction', level: 1 } },
-              { type: 'paragraph', data: { text: 'A curated showcase of Dubai\'s most prestigious real estate opportunities, selected for architectural brilliance and investment potential.' } }
-            ]
-          }
-        }
-      ];
+        };
+      });
 
       for (const page of defaults) {
         await supabase.from('site_settings').upsert(page);
       }
       
-      clearTimeout(timeout);
-      addToast('Enterprise pages synchronized successfully', 'success');
-      loadPageStatus();
+      addToast(`Initialized ${pagesToInit.length} page(s) successfully`, 'success');
     } catch (e) {
-      clearTimeout(timeout);
-      if (e.name === 'AbortError') return;
-      addToast('Initialization failure: ' + e.message, 'error');
-    } finally {
-      clearTimeout(timeout);
-      setLoading(false);
+      console.error('Error initializing pages:', e);
+      addToast('Initialization error: ' + e.message, 'error');
     }
   };
+
+  const getDefaultContent = (slug) => {
+    const contents = {
+      'privacy-charter': [
+        { type: 'header', data: { text: 'Information Privacy & Data Protection', level: 1 } },
+        { type: 'paragraph', data: { text: 'At Ahmed Kapadia Real Estate, we consider the protection of your personal and financial information to be of paramount importance. This Privacy Charter outlines our uncompromising commitment to data security and transparency.' } },
+        { type: 'header', data: { text: 'Data Collection & Strategic Use', level: 2 } },
+        { type: 'paragraph', data: { text: 'We collect data solely to enhance your investment journey. This includes information provided through inquiry forms, consultation sessions, and digital interactions. We utilize institutional-grade encryption to ensure that your private portfolio details remain strictly confidential.' } },
+        { type: 'header', data: { text: 'Your Rights & Our Obligations', level: 2 } },
+        { type: 'paragraph', data: { text: 'You have the right to access, modify, or request deletion of your personal information at any time. Our commitment is to respond to all privacy requests within 48 hours and maintain complete transparency in our data handling practices.' } }
+      ],
+      'terms-of-engagement': [
+        { type: 'header', data: { text: 'Strategic Engagement Framework', level: 1 } },
+        { type: 'paragraph', data: { text: 'The following terms outline the professional relationship between Ahmed Kapadia Real Estate and our global clientele. By engaging our services, you agree to a standard of excellence and mutual integrity.' } },
+        { type: 'header', data: { text: 'Scope of Advisory Services', level: 2 } },
+        { type: 'paragraph', data: { text: 'Our advisory encompasses property acquisition consultation, market intelligence, negotiation support, and portfolio optimization strategies. Each engagement is tailored to your specific investment objectives and risk profile.' } },
+        { type: 'header', data: { text: 'Professional Standards', level: 2 } },
+        { type: 'paragraph', data: { text: 'We maintain the highest standards of professional conduct, including confidentiality, conflict-of-interest disclosure, and transparent fee structures. All recommendations are made solely in the best interest of our clients.' } }
+      ],
+      'contact-protocol': [
+        { type: 'header', data: { text: 'Initiate Your Legacy', level: 1 } },
+        { type: 'paragraph', data: { text: 'Whether you are seeking to acquire a trophy asset in Palm Jumeirah or diversify your commercial portfolio in Downtown Dubai, our professional team is ready to assist.' } },
+        { type: 'header', data: { text: 'Direct Communication Channels', level: 2 } },
+        { type: 'paragraph', data: { text: 'For immediate consultation, please utilize our secure inquiry form or contact our headquarters directly. All communications are handled with the utmost confidentiality and professionalism.' } },
+        { type: 'header', data: { text: 'Global Headquarters', level: 2 } },
+        { type: 'paragraph', data: { text: 'Ahmed Kapadia Private Office • Dubai, United Arab Emirates • Available for consultations by appointment Monday through Friday, 9:00 AM - 6:00 PM GST' } }
+      ],
+      'portfolio': [
+        { type: 'header', data: { text: 'Selected Assets of Distinction', level: 1 } },
+        { type: 'paragraph', data: { text: 'A curated showcase of Dubai\'s most prestigious real estate opportunities, selected for architectural brilliance and investment potential.' } },
+        { type: 'header', data: { text: 'Investment Philosophy', level: 2 } },
+        { type: 'paragraph', data: { text: 'Our portfolio represents the pinnacle of luxury real estate in Dubai. Each property is evaluated for its architectural merit, location premium, developer reputation, and long-term appreciation potential.' } },
+        { type: 'header', data: { text: 'Browse Our Collection', level: 2 } },
+        { type: 'paragraph', data: { text: 'From waterfront penthouses to commercial landmarks, our inventory reflects the diversity and excellence of Dubai\'s real estate market. Contact us for private viewings and detailed investment analysis.' } }
+      ]
+    };
+    
+    return contents[slug] || [
+      { type: 'header', data: { text: 'Welcome', level: 1 } },
+      { type: 'paragraph', data: { text: 'This page is ready to be customized with your content.' } }
+    ];
+  };
+
+  useEffect(() => {
+    loadPageStatus();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -162,15 +175,6 @@ export default function AdminPagesPage() {
         <div>
           <h1 className="text-xl font-display font-bold text-[var(--text-main)] mb-1">Corporate Pages</h1>
           <p className="text-xs text-[var(--text-muted)] font-medium uppercase tracking-wider">Site Structure Inventory</p>
-        </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={handleInitializeDefaults}
-            className="btn-glass text-[10px] space-x-2"
-          >
-            <Globe className="w-3 h-3" />
-            <span>Synchronize Defaults</span>
-          </button>
         </div>
       </div>
 

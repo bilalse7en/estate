@@ -16,6 +16,13 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb', // Increase limit for large form uploads
+    },
+  },
+  // Prevent fetch caching issues that cause AbortErrors
+  reactStrictMode: true,
 };
 
 export default nextConfig;

@@ -125,11 +125,11 @@ export default function RespondClient({ inquiry }) {
               <div className="flex justify-between items-center bg-[var(--bg-tertiary)]/50 p-3 rounded-xl border border-[var(--border-subtle)]">
                 <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">System Status</span>
                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
-                  inquiry.status === 'reviewed' 
+                  inquiry.status === 'responded' 
                     ? 'bg-green-500/10 text-green-600 border-green-500/20' 
                     : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
                 }`}>
-                  {inquiry.status === 'reviewed' ? <><CheckCircle className="w-2.5 h-2.5 mr-1" /> Reviewed</> : <><Clock className="w-2.5 h-2.5 mr-1" /> Pending Response</>}
+                  {inquiry.status === 'responded' ? <><CheckCircle className="w-2.5 h-2.5 mr-1" /> Responded</> : <><Clock className="w-2.5 h-2.5 mr-1" /> Pending Response</>}
                 </span>
               </div>
 

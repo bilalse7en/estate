@@ -19,11 +19,12 @@ export default function FormTableClient({ initialForms }) {
   const currentItems = forms.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this inquiry?')) return;
+    if (!confirm('Are you sure you want to delete this inquiry? All attached files will also be permanently removed.')) return;
     const result = await deleteInquiry(id);
     if (result.success) {
       setForms(forms.filter(f => f.id !== id));
-      addToast('Inquiry deleted successfully', 'success');
+      const mediaMsg = result.deletedMedia > 0 ? ` (${result.deletedMedia} file${result.deletedMedia > 1 ? 's' : ''} removed)` : '';
+      addToast(`Inquiry deleted successfully${mediaMsg}`, 'success');
     } else {
       addToast('Error deleting inquiry: ' + result.error, 'error');
     }
@@ -68,12 +69,12 @@ export default function FormTableClient({ initialForms }) {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${
-                        form.status === 'reviewed' 
+                        form.status === 'responded' 
                           ? 'bg-green-500/10 text-green-600 border-green-500/20' 
                           : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
                       }`}>
-                        {form.status === 'reviewed' ? (
-                          <><CheckCircle className="w-2.5 h-2.5 mr-1" /> Reviewed</>
+                        {form.status === 'responded' ? (
+                          <><CheckCircle className="w-2.5 h-2.5 mr-1" /> Responded</>
                         ) : (
                           <><Clock className="w-2.5 h-2.5 mr-1" /> Pending</>
                         )}
