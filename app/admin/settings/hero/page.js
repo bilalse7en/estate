@@ -43,6 +43,11 @@ export default function HeroSettingsPage() {
   }, []);
 
   const handleSave = async () => {
+    const timeout = setTimeout(() => {
+      setSaving(false);
+      addToast('Save timeout - please try again', 'error');
+    }, 5000);
+
     setSaving(true);
     try {
       const { data: current } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
@@ -53,10 +58,14 @@ export default function HeroSettingsPage() {
         .upsert({ id: 'homepage', content: updatedContent });
       
       if (error) throw error;
+      clearTimeout(timeout);
       addToast('Hero slides synchronized successfully', 'success');
     } catch (error) {
-      addToast('Error saving settings', 'error');
+      clearTimeout(timeout);
+      if (error.name === 'AbortError') return;
+      addToast('Error saving hero slide', 'error');
     } finally {
+      clearTimeout(timeout);
       setSaving(false);
     }
   };

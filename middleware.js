@@ -44,9 +44,13 @@ export async function middleware(request) {
   if (!supabase) return supabaseResponse;
 
   // Get user info
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user;
+  } catch (err) {
+    console.error('Middleware Auth Error:', err.message);
+  }
 
   // Protect /submit-form and /admin routes
   if (
@@ -61,13 +65,19 @@ export async function middleware(request) {
 
   // Check admin access
   if (request.nextUrl.pathname.startsWith('/admin') && user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    if (profile?.role !== 'admin') {
+      if (profile?.role !== 'admin') {
+        const redirectUrl = new URL('/', request.url);
+        return NextResponse.redirect(redirectUrl);
+      }
+    } catch (err) {
+      console.error('Middleware Profile Error:', err.message);
       const redirectUrl = new URL('/', request.url);
       return NextResponse.redirect(redirectUrl);
     }

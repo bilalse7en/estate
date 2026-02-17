@@ -4,6 +4,7 @@ import AdminCard from '@/components/admin/AdminCard';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from '@/components/ui/ToastProvider';
 import { supabase } from '@/lib/supabase/client';
 import dynamic from 'next/dynamic';
@@ -30,7 +31,7 @@ export default function NewBlogPage() {
   const [featuredImage, setFeaturedImage] = useState('');
   const [content, setContent] = useState({ blocks: [] });
   const [published, setPublished] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -48,13 +49,12 @@ export default function NewBlogPage() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    
     if (!title || !slug || !content.blocks || content.blocks.length === 0) {
       addToast('Please fill in all required fields', 'error');
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
       const { error } = await supabase.from('blogs').insert([
         {
@@ -72,10 +72,11 @@ export default function NewBlogPage() {
       addToast('Blog created successfully!', 'success');
       router.push('/admin/blogs');
     } catch (error) {
+      if (error.name === 'AbortError') return;
       console.error('Error creating blog:', error);
       addToast('Error creating blog: ' + error.message, 'error');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -111,10 +112,10 @@ export default function NewBlogPage() {
           </button>
           <button
             onClick={handleSave}
-            disabled={loading}
+            disabled={saving}
             className="btn-premium space-x-2"
           >
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             <span>{published ? 'Publish Now' : 'Save Draft'}</span>
           </button>
         </div>

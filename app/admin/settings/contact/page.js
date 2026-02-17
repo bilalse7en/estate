@@ -21,17 +21,32 @@ export default function ContactSettingsPage() {
   });
 
   useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 2000);
+
     async function loadSettings() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
-      if (data?.content?.contact) {
-        setContact(data.content.contact);
+      try {
+        const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
+        if (data?.content?.contact) {
+          setContact(data.content.contact);
+        }
+      } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
+        console.error('Error loading contact settings:', error);
+      } finally {
+        clearTimeout(timeout);
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadSettings();
+    return () => clearTimeout(timeout);
   }, []);
 
   const handleSave = async () => {
+    const timeoutId = setTimeout(() => {
+      setSaving(false);
+      addToast('Save timeout - please try again', 'error');
+    }, 5000);
+
     setSaving(true);
     try {
       const { data: current } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
@@ -42,10 +57,12 @@ export default function ContactSettingsPage() {
         .upsert({ id: 'homepage', content: updatedContent });
       
       if (error) throw error;
-      addToast('Channel configurations synchronized', 'success');
+      addToast('Contact channels synchronized', 'success');
     } catch (error) {
-      addToast('Error saving settings', 'error');
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
+      addToast('Error saving contact settings', 'error');
     } finally {
+      clearTimeout(timeoutId);
       setSaving(false);
     }
   };
@@ -60,7 +77,7 @@ export default function ContactSettingsPage() {
             <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
             <span className="text-[10px] uppercase font-bold tracking-widest">Return to Terminal</span>
           </button>
-          <h1 className="text-xl font-display font-bold text-[var(--text-main)]">Channel Configuration</h1>
+          <h1 className="text-xl font-display font-bold text-[var(--text-main)]">Contact Channels</h1>
         </div>
         <button onClick={handleSave} disabled={saving} className="btn-premium space-x-2">
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}

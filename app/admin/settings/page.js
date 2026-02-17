@@ -3,7 +3,7 @@
 import AdminCard from '@/components/admin/AdminCard';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Layout, User, Building2, Award, Briefcase, Mail, Edit, Loader2, CheckCircle } from 'lucide-react';
+import { Layout, User, Building2, Award, Briefcase, Mail, Edit, Loader2, CheckCircle, Palette } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function AdminSettingsPage() {
@@ -11,6 +11,13 @@ export default function AdminSettingsPage() {
   const supabase = createClient();
 
   const sections = [
+    { 
+      id: 'theme', 
+      title: 'Frontend Theme', 
+      description: 'Customize colors, borders, and visual appearance.', 
+      icon: Palette,
+      path: '/admin/settings/theme'
+    },
     { 
       id: 'hero', 
       title: 'Hero Showcase', 
@@ -27,7 +34,7 @@ export default function AdminSettingsPage() {
     },
     { 
       id: 'portfolio', 
-      title: 'Investment Portfolio', 
+      title: 'Portfolio Showcase', 
       description: 'Configure the narrative for featured property assets.', 
       icon: Building2,
       path: '/admin/settings/portfolio'

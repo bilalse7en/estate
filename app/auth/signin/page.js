@@ -30,7 +30,7 @@ export default function SigninPage() {
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
         },
       });
       
@@ -70,17 +70,17 @@ export default function SigninPage() {
           <p className="text-[var(--text-muted)]">Enter your credentials to continue</p>
         </div>
 
-        {message && (
-          <div className="mb-6 p-4 glass-light rounded-xl flex items-center space-x-3 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800">
-            <CheckCircle className="w-5 h-5 flex-shrink-0" />
-            <p className="text-sm font-medium">{message}</p>
+        {error && (
+          <div className="mb-6 p-4 glass-light rounded-xl flex items-center space-x-3 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 bg-red-500/10">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="text-sm font-medium">{error}</p>
           </div>
         )}
 
-        {error && (
-          <div className="mb-6 p-4 glass-light rounded-xl flex items-center space-x-3 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            <p className="text-sm font-medium">{error}</p>
+        {message && !error && (
+          <div className={`mb-6 p-4 glass-light rounded-xl flex items-center space-x-3 border ${message.includes('failed') || message.includes('Could not') ? 'text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50 bg-red-500/10' : 'text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 bg-green-500/10'}`}>
+            {message.includes('failed') || message.includes('Could not') ? <AlertCircle className="w-5 h-5 flex-shrink-0" /> : <CheckCircle className="w-5 h-5 flex-shrink-0" />}
+            <p className="text-sm font-medium">{message}</p>
           </div>
         )}
 

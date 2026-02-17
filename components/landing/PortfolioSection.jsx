@@ -1,52 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, MapPin, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
-import { useEffect } from 'react';
-
-const initialProperties = [
-  {
-    title: 'Palm Jumeirah Villa',
-    location: 'The Palm, Dubai',
-    price: '$12.5M',
-    type: 'Exclusive Villa',
-    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    title: 'Downtown Penthouse',
-    location: 'Burj Khalifa District',
-    price: '$8.2M',
-    type: 'Luxury Penthouse',
-    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=800',
-  },
-  {
-    title: 'Marina Luxury Suite',
-    location: 'Dubai Marina',
-    price: '$3.4M',
-    type: 'Sky Suite',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800',
-  },
-];
 
 export default function PortfolioSection() {
-  const [header, setHeader] = useState({
+  const [settings, setSettings] = useState({
     title: "A LEGACY IN BRICK & MORTAR",
-    subtitle: "Selected for architectural brilliance and investment potential in Dubai's most coveted areas."
+    subtitle: "Selected for architectural brilliance and investment potential in Dubai's most coveted areas.",
+    items: []
   });
 
   useEffect(() => {
-    async function fetchHeader() {
+    async function fetchSettings() {
       try {
         if (!supabase) return;
         const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').single();
-        if (data?.content?.portfolio) setHeader(data.content.portfolio);
+        if (data?.content?.portfolio) {
+          setSettings(data.content.portfolio);
+        }
       } catch (error) {
         // Silently use default values
       }
     }
-    fetchHeader();
+    fetchSettings();
   }, []);
 
   return (
@@ -60,24 +38,24 @@ export default function PortfolioSection() {
               <span className="text-primary-600 font-bold tracking-[0.4em] text-[10px] uppercase block">Curated Listings</span>
             </div>
             <h2 className="text-3xl md:text-5xl font-display font-bold text-[var(--text-main)] leading-tight tracking-tighter">
-              {header.title.split(' ').length > 2 ? (
+              {settings.title.split(' ').length > 2 ? (
                 <>
-                  {header.title.split(' ').slice(0, -2).join(' ')} <br />
-                  <span className="gradient-text">{header.title.split(' ').slice(-2).join(' ')}</span>
+                  {settings.title.split(' ').slice(0, -2).join(' ')} <br />
+                  <span className="gradient-text">{settings.title.split(' ').slice(-2).join(' ')}</span>
                 </>
               ) : (
-                <span className="gradient-text">{header.title}</span>
+                <span className="gradient-text">{settings.title}</span>
               )}
             </h2>
           </div>
           <p className="text-[var(--text-muted)] md:max-w-xs text-sm leading-relaxed md:text-right">
-            {header.subtitle}
+            {settings.subtitle}
           </p>
         </div>
 
         {/* Property Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-          {initialProperties.map((property, index) => (
+          {(settings.items || []).map((property, index) => (
             <PropertyCard key={index} property={property} index={index} />
           ))}
         </div>

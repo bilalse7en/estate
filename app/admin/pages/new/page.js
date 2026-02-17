@@ -27,7 +27,7 @@ export default function NewPagePage() {
   const [slug, setSlug] = useState('');
   const [content, setContent] = useState({ blocks: [] });
   const [published, setPublished] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function NewPagePage() {
       return;
     }
 
-    setLoading(true);
+    setSaving(true);
     try {
       const pageId = `page_${slug}`;
       const { error } = await supabase.from('site_settings').upsert({
@@ -68,10 +68,11 @@ export default function NewPagePage() {
       addToast('Corporate page initialized successfully!', 'success');
       router.push('/admin/pages');
     } catch (error) {
+      if (error.name === 'AbortError') return;
       console.error('Error creating page:', error);
       addToast('Error creating page: ' + error.message, 'error');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -94,10 +95,10 @@ export default function NewPagePage() {
           <button onClick={() => router.back()} className="btn-glass text-xs">Discard</button>
           <button
             onClick={handleSave}
-            disabled={loading}
+            disabled={saving}
             className="btn-premium space-x-2"
           >
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             <span>{published ? 'Launch Page' : 'Save Setup'}</span>
           </button>
         </div>

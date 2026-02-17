@@ -127,7 +127,7 @@ export default function SubmitFormPage({ standalone = false }) {
       // 2. Trigger email API with improved timeout
       try {
         const emailController = new AbortController();
-        const emailTimeoutId = setTimeout(() => emailController.abort(), 15000); // Reduced to 15 seconds
+        const emailTimeoutId = setTimeout(() => emailController.abort('Email transmission timeout'), 15000); 
 
         const response = await fetch('/api/send-email', {
           method: 'POST',
@@ -161,6 +161,10 @@ export default function SubmitFormPage({ standalone = false }) {
            throw new Error('Communication uplink unstable. Please try again.');
         }
       } catch (emailErr) {
+        if (emailErr.name === 'AbortError') {
+          console.warn('Email notification aborted:', emailErr.message);
+          return;
+        }
         console.warn('Email notification skipped or failed:', emailErr);
         if (!supabase) throw emailErr;
       }

@@ -14,44 +14,50 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
+
     if (!supabase) {
       setLoading(false);
       return;
     }
 
-    // Check active sessions and sets the user
     const checkUser = async () => {
       try {
-        if (!supabase) return;
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user ?? null);
+        // Use a more resilient session check first
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user ?? null;
         
-        if (user) {
+        if (!mounted) return;
+        setUser(currentUser);
+        
+        if (currentUser) {
           const { data: profile } = await supabase
             .from('profiles')
             .select('role, name')
-            .eq('id', user.id)
-            .single();
+            .eq('id', currentUser.id)
+            .maybeSingle();
           
+          if (!mounted) return;
           setIsAdmin(profile?.role === 'admin');
-          setUserName(profile?.name || user.email?.split('@')[0] || 'User');
+          setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
         }
       } catch (error) {
-        if (error.name !== 'AbortError') {
+        const isAbort = error.name === 'AbortError' || error.message?.includes('AbortError') || error.message?.includes('aborted');
+        if (mounted && !isAbort) {
           console.error('AuthProvider checkUser error:', error);
         }
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
     checkUser();
 
-    // Listen for changes on auth state (sign in, sign out, etc.)
-    if (!supabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       const currentUser = session?.user ?? null;
       
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setIsAdmin(false);
@@ -62,36 +68,34 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      setUser(currentUser);
-      
-      if (currentUser) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role, name')
-            .eq('id', currentUser.id)
-            .maybeSingle();
-          
-          setIsAdmin(profile?.role === 'admin');
-          setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
-        } catch (error) {
-          if (error.name !== 'AbortError') {
-            console.error('AuthProvider onAuthStateChange profile error:', error);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        setUser(currentUser);
+        if (currentUser) {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role, name')
+              .eq('id', currentUser.id)
+              .maybeSingle();
+            
+            if (!mounted) return;
+            setIsAdmin(profile?.role === 'admin');
+            setUserName(profile?.name || currentUser.email?.split('@')[0] || 'User');
+          } catch (error) {
+            if (mounted && error.name !== 'AbortError') {
+              console.error('AuthProvider onAuthStateChange profile error:', error);
+            }
           }
         }
-      } else {
-        setIsAdmin(false);
-        setUserName('');
-      }
-      
-      setLoading(false);
-      
-      if (event === 'SIGNED_IN') {
-        router.refresh();
+        setLoading(false);
+        if (event === 'SIGNED_IN') router.refresh();
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   const signOut = async () => {

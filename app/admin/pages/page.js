@@ -45,6 +45,10 @@ export default function AdminPagesPage() {
   ];
 
   const loadPageStatus = async () => {
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
     setLoading(true);
     try {
       const { data } = await supabase
@@ -61,9 +65,11 @@ export default function AdminPagesPage() {
       });
       setPages(statusMap);
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === 'AbortError' || e.message?.includes('AbortError')) return;
+      console.error('Error synchronizing inventory:', e);
       addToast('Error synchronizing page inventory', 'error');
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   };
@@ -73,6 +79,11 @@ export default function AdminPagesPage() {
   }, []);
 
   const handleInitializeDefaults = async () => {
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      addToast('Operation timeout - please try again', 'error');
+    }, 3000);
+
     setLoading(true);
     try {
       const defaults = [
@@ -132,11 +143,15 @@ export default function AdminPagesPage() {
         await supabase.from('site_settings').upsert(page);
       }
       
+      clearTimeout(timeout);
       addToast('Enterprise pages synchronized successfully', 'success');
       loadPageStatus();
     } catch (e) {
+      clearTimeout(timeout);
+      if (e.name === 'AbortError') return;
       addToast('Initialization failure: ' + e.message, 'error');
     } finally {
+      clearTimeout(timeout);
       setLoading(false);
     }
   };

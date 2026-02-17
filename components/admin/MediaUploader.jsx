@@ -40,23 +40,38 @@ export default function MediaUploader({ onUploadSuccess, accept = 'image/*' }) {
 
   const handleFile = async (file) => {
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Only image files are allowed');
+    const allowedTypes = [
+      'image/', 
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+    
+    const isAllowed = allowedTypes.some(type => file.type.startsWith(type));
+    if (!isAllowed) {
+      setError('Unsupported file type. Please upload Images, PDF, Word, or Excel files.');
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
+    // Validate file size (max 10MB for documents)
+    const maxSize = file.type.startsWith('image/') ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(`File too large. Max size for this type is ${maxSize / (1024 * 1024)}MB`);
       return;
     }
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Show preview for images, or generic icon for files
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreview('document_placeholder');
+    }
 
     // Upload file
     setUploading(true);
@@ -123,10 +138,10 @@ export default function MediaUploader({ onUploadSuccess, accept = 'image/*' }) {
             </div>
             <div>
               <p className="text-sm font-semibold text-[var(--text-main)] mb-1">
-                Drop image here or click to upload
+                Drop files here or click to upload
               </p>
               <p className="text-xs text-[var(--text-muted)]">
-                Supports: JPG, PNG, GIF, WebP (Max 5MB)
+                Supports: Images, PDF, Word, Excel (Max 10MB)
               </p>
             </div>
           </div>
@@ -141,8 +156,15 @@ export default function MediaUploader({ onUploadSuccess, accept = 'image/*' }) {
           </button>
 
           <div className="flex items-center space-x-4">
-            <div className="w-20 h-20 rounded-xl overflow-hidden bg-[var(--bg-secondary)] flex-shrink-0">
-              <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+            <div className="w-20 h-20 rounded-xl overflow-hidden bg-[var(--bg-secondary)] flex items-center justify-center border border-[var(--border-subtle)]">
+              {preview === 'document_placeholder' ? (
+                <div className="flex flex-col items-center">
+                  <Upload className="w-8 h-8 text-primary-500" />
+                  <span className="text-[8px] mt-1 font-bold uppercase text-[var(--text-muted)] tracking-tighter">Document</span>
+                </div>
+              ) : (
+                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+              )}
             </div>
 
             <div className="flex-1">

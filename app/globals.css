@@ -132,25 +132,6 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   @apply relative bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-xl overflow-hidden shadow-sm;
 }
 
-/* Dark Mode Premium Border - 100% Perfected Mask Technique */
-.dark .admin-card {
-  @apply border-0!;
-}
-
-.dark .admin-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--color-primary-800), var(--color-primary-600), var(--color-primary-800));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  pointer-events: none;
-  z-index: 10;
-}
-
 /* Interactive States & Focus Rings */
 .focus-ring {
   @apply outline-none ring-0 focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-main)] transition-all;
@@ -168,23 +149,26 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   opacity: 0.15;
 }
 
-/* Glassmorphism Classes (Used sparingly for Admin) */
+/* Glassmorphism Classes - Premium Glass Effects */
 .glass {
   background-color: var(--glass-bg);
-  backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--glass-border);
 }
 
 .glass-light {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(200%);
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
 }
 
 .dark .glass-light {
-  background-color: rgba(13, 17, 23, 0.7);
-  backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
@@ -239,87 +223,41 @@ p { @apply text-sm font-sans leading-normal text-[var(--text-main)]; }
   transform: translateY(-2px);
 }
 
-/* Dark Mode Glass Button - Perfected Gradient Brown Border */
+/* Dark Mode Glass Button - Clean */
 .dark .btn-glass {
-  @apply relative border-0!;
+  @apply border border-[var(--glass-border)];
   background-color: var(--glass-btn-bg);
   backdrop-filter: blur(12px) saturate(180%);
 }
 
-.dark .btn-glass::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--color-primary-700), var(--color-primary-500), var(--color-primary-700));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  pointer-events: none;
-}
-
 .dark .btn-glass:hover {
   background-color: var(--glass-btn-hover);
-  box-shadow: 0 8px 24px rgba(184, 115, 51, 0.3);
+  box-shadow: 0 8px 24px rgba(184, 115, 51, 0.2);
+  border-color: rgba(184, 115, 51, 0.3);
 }
 
-/* Premium Gradient Brown Border Utilities - 100% Project Wide */
+/* Premium Border Utilities - Clean */
 .premium-border-t {
-  border-top: 1px solid transparent;
-  border-image: linear-gradient(to right, transparent, rgba(184, 115, 51, 0.3), transparent) 1;
+  border-top: 1px solid var(--border-subtle);
 }
 
 .premium-border-b {
-  border-bottom: 1px solid transparent;
-  border-image: linear-gradient(to right, transparent, rgba(184, 115, 51, 0.3), transparent) 1;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
+/* Premium Border - Clean & Simple */
 .dark .premium-border-t, 
 .dark .premium-border-b {
-  border-image: linear-gradient(to right, transparent, rgba(184, 115, 51, 0.15), transparent) 1;
+  border-color: var(--border-subtle);
 }
 
-/* Premium Gradient Brown Border for Dark Mode - 100% Perfected Mask Technique */
-.dark .premium-card-border {
-  @apply border-0!;
+.premium-card-border {
+  @apply border border-[var(--border-subtle)];
 }
 
-.dark .premium-card-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 1.5px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--color-primary-800), var(--color-primary-500), var(--color-primary-800));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Gradient Brown Border Utility - For Navbar and Cards */
+/* Clean Border Utility - Professional & Simple */
 .gradient-border-brown {
   @apply border border-[var(--glass-border)];
-}
-
-.dark .gradient-border-brown {
-  @apply border-0!;
-}
-
-.dark .gradient-border-brown::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, #b87333, #a3612b, #b87333);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* Custom Scrollbar */
@@ -503,4 +441,96 @@ html {
   background: linear-gradient(to right, var(--color-primary-500), var(--color-primary-300));
   z-index: 9999;
   transition: width 0.1s ease-out;
+}
+/* Editor.js Refinements - Premium Dark Mode Support */
+.ce-block--selected .ce-block__content {
+  background-color: var(--hover-bg);
+}
+
+.ce-toolbar__content, .ce-block__content {
+  max-width: 100% !important;
+}
+
+.ce-toolbar__actions {
+  right: -40px !important;
+}
+
+/* Dark Mode Support for Editor.js Icons and Backgrounds */
+.dark .ce-toolbar__plus,
+.dark .ce-toolbar__settings-btn,
+.dark .ce-conversion-tool__icon,
+.dark .ce-conversion-toolbar,
+.dark .ce-settings,
+.dark .ce-toolbar__actions button,
+.dark .cdx-button,
+.dark .ce-popover,
+.dark .ce-inline-toolbar {
+  background-color: var(--bg-secondary) !important;
+  color: white !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* Force white color on all SVGs inside toolbar and settings */
+.dark .ce-toolbar__plus svg,
+.dark .ce-toolbar__plus svg path,
+.dark .ce-toolbar__settings-btn svg,
+.dark .ce-toolbar__settings-btn svg path,
+.dark .ce-popover__item-icon svg,
+.dark .ce-popover__item-icon svg path,
+.dark .ce-inline-tool svg,
+.dark .ce-inline-tool svg path,
+.dark .ce-conversion-tool__icon svg,
+.dark .ce-conversion-tool__icon svg path {
+  fill: white !important;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Ensure visibility even without hover */
+.dark .ce-toolbar__plus,
+.dark .ce-toolbar__settings-btn {
+  background: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 8px;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+.dark .ce-toolbar__actions button svg {
+  color: white !important;
+  fill: white !important;
+}
+
+.dark .ce-toolbar__plus:hover,
+.dark .ce-toolbar__settings-btn:hover,
+.dark .ce-conversion-toolbar button:hover,
+.dark .ce-settings button:hover,
+.dark .ce-popover__item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.dark .ce-popover__item-label,
+.dark .ce-popover__item-secondary-label {
+  color: white !important;
+}
+
+.dark .cdx-input {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-subtle) !important;
+  color: white !important;
+}
+
+.dark .ce-inline-toolbar,
+.dark .ce-popover {
+  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+.dark .cdx-list__item {
+  color: white !important;
+}
+
+.dark [data-placeholder]:empty::before {
+  color: rgba(255, 255, 255, 0.3) !important;
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 import { ChevronRight, ArrowRight } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -84,11 +85,17 @@ export default function HeroSection() {
         {slides.map((slide, index) => (
           <SwiperSlide key={index}>
             <div className="relative h-full w-full flex items-center">
-              {/* Background with Darkened Overlay */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url("${slide.image}")` }}
-              >
+              {/* Optimized Hero Image */}
+              <div className="absolute inset-0">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={index === 0}
+                  className="object-cover"
+                  sizes="100vw"
+                  quality={90}
+                />
                 <div className="absolute inset-0 bg-black/60" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
               </div>

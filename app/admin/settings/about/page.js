@@ -21,17 +21,35 @@ export default function AboutSettingsPage() {
   });
 
   useEffect(() => {
-    async function loadSettings() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
-      if (data?.content?.about) {
-        setAbout(data.content.about);
-      }
+    const timeout = setTimeout(() => {
       setLoading(false);
+    }, 2000);
+
+    async function loadSettings() {
+      try {
+        const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
+        if (data?.content?.about) {
+          setAbout(data.content.about);
+        }
+      } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
+        console.error('Error loading about settings:', error);
+      } finally {
+        clearTimeout(timeout);
+        setLoading(false);
+      }
     }
     loadSettings();
+    
+    return () => clearTimeout(timeout);
   }, []);
 
   const handleSave = async () => {
+    const timeoutId = setTimeout(() => {
+      setSaving(false);
+      addToast('Save timeout - please try again', 'error');
+    }, 5000);
+
     setSaving(true);
     try {
       const { data: current } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
@@ -44,8 +62,10 @@ export default function AboutSettingsPage() {
       if (error) throw error;
       addToast('Executive biography synchronized', 'success');
     } catch (error) {
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
       addToast('Error saving settings', 'error');
     } finally {
+      clearTimeout(timeoutId);
       setSaving(false);
     }
   };

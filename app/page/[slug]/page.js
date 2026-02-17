@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { FileText, Shield, Gavel, Mail, Clock, ShieldCheck, Award } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +8,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   try {
     const supabase = await createClient();
-    if (!supabase) return { title: 'Legal - Ahmed Kapadia' };
+    if (!supabase) return { title: 'Corporate Page - Ahmed Kapadia' };
 
     const { data: page } = await supabase
       .from('site_settings')
@@ -18,15 +17,17 @@ export async function generateMetadata({ params }) {
       .maybeSingle();
 
     if (!page || !page.content?.published) {
-      return { title: 'Page Not Found' };
+      return { title: 'Content Unavailable' };
     }
 
+    const title = page.content.title || slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
     return {
-      title: `${page.content.title} | Ahmed Kapadia Real Estate`,
-      description: `Official ${page.content.title} for Ahmed Kapadia Real Estate. Professional integrity and transparency in Dubai luxury real estate.`,
+      title: `${title} | Ahmed Kapadia Real Estate`,
+      description: `Official ${title} documentation for Ahmed Kapadia Real Estate in Dubai. Professional excellence and transparency.`,
     };
   } catch (error) {
-    return { title: 'Legal - Ahmed Kapadia' };
+    return { title: 'Legal Documentation - Ahmed Kapadia' };
   }
 }
 

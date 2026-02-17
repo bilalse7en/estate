@@ -12,30 +12,56 @@ export default function ServicesSettingsPage() {
   const { addToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [services, setServices] = useState({
-    title: "",
-    subtitle: ""
+  const [settings, setSettings] = useState({
+    title: "BEYOND THE CONVENTIONAL",
+    subtitle: "We define a new standard in real estate consulting, where every detail is managed with surgical precision.",
+    service_items: [
+      { title: 'Investment Advisory', description: 'Data-driven insights to maximize your portfolio growth in the UAE market.', icon: 'LineChart' },
+      { title: 'Property Acquisition', description: 'Exclusive access to off-market properties and early developer releases.', icon: 'Home' },
+      { title: 'Portfolio Management', description: 'End-to-end management services for domestic and international investors.', icon: 'ShieldCheck' },
+      { title: 'Corporate Services', description: 'Strategic real estate solutions for businesses and institutional entities.', icon: 'Briefcase' }
+    ],
+    stats: [
+      { label: "Market Access", value: "Unlimited", prefix: "", suffix: "", icon: 'Globe' },
+      { label: "Client Satisfaction", value: "100", prefix: "", suffix: "%", icon: 'Zap' },
+      { label: "Asset Valuation", value: "2", prefix: "$", suffix: "B+", icon: 'LineChart' },
+      { label: "Acquisition Time", value: "10", prefix: "", suffix: " Days", icon: 'Sparkles' }
+    ]
   });
 
   useEffect(() => {
     const timeout = setTimeout(() => setLoading(false), 2000);
     async function loadSettings() {
-      const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
-      if (data?.content?.services) {
-        setServices(data.content.services);
+      try {
+        const { data } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
+        if (data?.content?.services) {
+          setSettings({
+            ...settings,
+            ...data.content.services
+          });
+        }
+      } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
+        console.error('Error loading services settings:', error);
+      } finally {
+        clearTimeout(timeout);
+        setLoading(false);
       }
-      clearTimeout(timeout);
-      setLoading(false);
     }
     loadSettings();
     return () => clearTimeout(timeout);
   }, []);
 
   const handleSave = async () => {
+    const timeoutId = setTimeout(() => {
+      setSaving(false);
+      addToast('Save timeout - please try again', 'error');
+    }, 5000);
+
     setSaving(true);
     try {
       const { data: current } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
-      const updatedContent = { ...(current?.content || {}), services };
+      const updatedContent = { ...(current?.content || {}), services: settings };
       
       const { error } = await supabase
         .from('site_settings')
@@ -44,13 +70,27 @@ export default function ServicesSettingsPage() {
       if (error) throw error;
       addToast('Service suite synchronized', 'success');
     } catch (error) {
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
       addToast('Error saving settings', 'error');
     } finally {
+      clearTimeout(timeoutId);
       setSaving(false);
     }
   };
 
   if (loading) return <div className="py-20 flex justify-center"><Loader2 className="animate-spin w-8 h-8 text-[var(--color-gold)]" /></div>;
+
+  const updateItem = (index, field, value) => {
+    const newList = [...settings.service_items];
+    newList[index] = { ...newList[index], [field]: value };
+    setSettings({ ...settings, service_items: newList });
+  };
+
+  const updateStat = (index, field, value) => {
+    const newList = [...settings.stats];
+    newList[index] = { ...newList[index], [field]: value };
+    setSettings({ ...settings, stats: newList });
+  };
 
   return (
     <div className="space-y-6">
@@ -68,36 +108,95 @@ export default function ServicesSettingsPage() {
         </button>
       </div>
 
-      <AdminCard title="Operational Framework">
-        <div className="space-y-6 max-w-4xl">
-          <div>
-            <label className="admin-label">Service Master Headline</label>
-            <div className="relative">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <AdminCard title="Operational Framework">
+          <div className="space-y-4">
+            <div>
+              <label className="admin-label">Service Master Headline</label>
               <input
                 type="text"
-                value={services.title}
-                onChange={(e) => setServices({...services, title: e.target.value})}
-                className="admin-input font-bold pl-12"
+                value={settings.title}
+                onChange={(e) => setSettings({...settings, title: e.target.value})}
+                className="admin-input font-bold"
               />
-              <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-gold)]" />
+            </div>
+            <div>
+              <label className="admin-label">Service Philosophy Narrative</label>
+              <textarea
+                value={settings.subtitle}
+                onChange={(e) => setSettings({...settings, subtitle: e.target.value})}
+                className="admin-input h-32 resize-none"
+              />
             </div>
           </div>
-          <div>
-            <label className="admin-label">Service Philosophy & methodology</label>
-            <textarea
-              value={services.subtitle}
-              onChange={(e) => setServices({...services, subtitle: e.target.value})}
-              className="admin-input h-48 resize-none leading-relaxed"
-              placeholder="Describe the unique value proposition..."
-            />
+        </AdminCard>
+
+        <AdminCard title="Global Performance Metrics">
+          <div className="grid grid-cols-2 gap-4">
+            {settings.stats.map((stat, i) => (
+              <div key={i} className="p-4 bg-[var(--bg-tertiary)]/30 rounded-2xl border border-[var(--border-subtle)] space-y-3">
+                <input
+                  type="text"
+                  value={stat.label}
+                  onChange={(e) => updateStat(i, 'label', e.target.value)}
+                  className="bg-transparent text-[10px] font-bold uppercase tracking-widest text-primary-500 w-full border-none p-0 focus:ring-0"
+                />
+                <div className="flex items-baseline space-x-1">
+                  <input
+                    type="text"
+                    value={stat.prefix}
+                    onChange={(e) => updateStat(i, 'prefix', e.target.value)}
+                    className="bg-transparent text-sm font-bold w-4 border-none p-0 focus:ring-0 text-[var(--text-muted)]"
+                    placeholder="$"
+                  />
+                  <input
+                    type="text"
+                    value={stat.value}
+                    onChange={(e) => updateStat(i, 'value', e.target.value)}
+                    className="bg-transparent text-xl font-display font-bold w-full border-none p-0 focus:ring-0 text-[var(--text-main)]"
+                  />
+                  <input
+                    type="text"
+                    value={stat.suffix}
+                    onChange={(e) => updateStat(i, 'suffix', e.target.value)}
+                    className="bg-transparent text-sm font-bold w-8 border-none p-0 focus:ring-0 text-[var(--text-muted)]"
+                    placeholder="B+"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
+        </AdminCard>
+      </div>
+
+      <AdminCard title="Individual Specializations">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {settings.service_items.map((item, i) => (
+            <div key={i} className="glass p-6 rounded-2xl border border-[var(--border-subtle)] space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center text-primary-600">
+                  <Briefcase className="w-4 h-4" />
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Slot {i + 1}</span>
+              </div>
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={item.title}
+                  onChange={(e) => updateItem(i, 'title', e.target.value)}
+                  className="bg-transparent text-sm font-bold w-full border-none p-0 focus:ring-0 text-[var(--text-main)]"
+                  placeholder="Service Title"
+                />
+                <textarea
+                  value={item.description}
+                  onChange={(e) => updateItem(i, 'description', e.target.value)}
+                  className="bg-transparent text-[11px] w-full border-none p-0 focus:ring-0 text-[var(--text-muted)] h-16 resize-none leading-relaxed"
+                  placeholder="Detailed description of the specialization..."
+                />
+              </div>
+            </div>
+          ))}
         </div>
-      </AdminCard>
-      
-      <AdminCard title="Implementation Detail">
-        <p className="text-xs text-[var(--text-muted)] italic leading-relaxed">
-          This section defines the corporate voice for your consulting operations. Ensure the tone is authoritative and reflects the premium nature of Dubai's luxury real estate sector.
-        </p>
       </AdminCard>
     </div>
   );

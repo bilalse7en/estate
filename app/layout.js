@@ -65,9 +65,41 @@ export const metadata = {
     },
   },
   verification: {
-    // Add your verification codes here
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || '',
   },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Ahmed Kapadia Real Estate',
+  url: 'https://ahmedkapadia.com',
+  logo: 'https://uykgpmgcayncaddtsspu.supabase.co/storage/v1/object/public/media/1770897883828-c9o4uj39666.webp',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+971-00-000-0000',
+    contactType: 'customer service',
+    areaServed: 'AE',
+    availableLanguage: ['en', 'ar'],
+  },
+  sameAs: [
+    'https://twitter.com/ahmedkapadia',
+    'https://linkedin.com/in/ahmedkapadia',
+    'https://instagram.com/ahmedkapadia',
+  ],
+};
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Ahmed Kapadia',
+  jobTitle: 'Premium Real Estate Investment Consultant',
+  description: 'Expert real estate consulting and luxury property portfolio management in Dubai.',
+  url: 'https://ahmedkapadia.com',
+  sameAs: [
+    'https://linkedin.com/in/ahmedkapadia',
+    'https://twitter.com/ahmedkapadia',
+  ],
 };
 
 import { ToastProvider } from '@/components/ui/ToastProvider';
@@ -76,6 +108,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${syne.variable} ${outfit.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="flex flex-col min-h-screen transition-colors duration-300" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>

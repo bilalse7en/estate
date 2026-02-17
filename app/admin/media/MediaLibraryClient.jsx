@@ -7,6 +7,7 @@ import { formatDate } from '@/lib/utils';
 import MediaUploader from '@/components/admin/MediaUploader';
 import { useToast } from '@/components/ui/ToastProvider';
 import { Upload, Image, Check, Copy, ExternalLink, Trash2 } from 'lucide-react';
+import Pagination from '@/components/admin/Pagination';
 
 export default function MediaLibraryClient({ initialMedia }) {
   const { addToast } = useToast();
@@ -15,6 +16,12 @@ export default function MediaLibraryClient({ initialMedia }) {
   const [deleting, setDeleting] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(media.length / itemsPerPage);
+  const currentItems = media.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleUploadSuccess = (newMedia) => {
     setMedia([newMedia, ...media]);
@@ -89,7 +96,7 @@ export default function MediaLibraryClient({ initialMedia }) {
         title="Asset Inventory"
         className="overflow-hidden"
       >
-        {media.length === 0 ? (
+        {currentItems.length === 0 ? (
           <div className="py-12 text-center">
             <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-[var(--bg-tertiary)] flex items-center justify-center">
               <Image className="w-6 h-6 text-[var(--text-muted)]" />
@@ -104,95 +111,105 @@ export default function MediaLibraryClient({ initialMedia }) {
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto -mx-4 -mb-4">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-[var(--bg-tertiary)]/50 border-b border-[var(--border-subtle)]">
-                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Preview</th>
-                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Metadata</th>
-                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Storage</th>
-                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Author</th>
-                  <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Timestamp</th>
-                  <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)]">
-                {media.map((item) => (
-                  <tr key={item.id} className="hover:bg-[var(--bg-tertiary)]/30 transition-colors group">
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => setPreviewImage(item.public_url)}
-                        className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--color-gold)] transition-all focus-ring"
-                      >
-                        <img 
-                          src={item.public_url} 
-                          alt={item.original_filename}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="max-w-[180px]">
-                        <p className="text-xs font-bold text-[var(--text-main)] truncate" title={item.original_filename}>
-                          {item.original_filename}
-                        </p>
-                        <p className="text-[10px] text-[var(--text-muted)] font-mono truncate opacity-60 mt-0.5">
-                          {item.mime_type}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs font-medium text-[var(--text-muted)]">
-                        {formatFileSize(item.file_size)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs font-semibold text-[var(--text-main)]">
-                        {item.uploader_name || 'System'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-[10px] font-bold uppercase tracking-tighter text-[var(--text-muted)]">
-                        {formatDate(item.created_at)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end space-x-1">
-                        <button
-                          onClick={() => handleCopyUrl(item.public_url, item.id)}
-                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--color-gold)] transition-all focus-ring"
-                          title="Copy Link"
-                        >
-                          {copiedId === item.id ? (
-                            <Check className="w-3.5 h-3.5 text-green-500" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                        <a
-                          href={item.public_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--color-gold)] transition-all focus-ring"
-                          title="View"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          disabled={deleting === item.id}
-                          className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-red-500 transition-all focus-ring disabled:opacity-30"
-                          title="Purge"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            <div className="overflow-x-auto -mx-4">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[var(--bg-tertiary)]/50 border-b border-[var(--border-subtle)]">
+                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Preview</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Metadata</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Storage</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Author</th>
+                    <th className="px-4 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Timestamp</th>
+                    <th className="px-4 py-2 text-right text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-subtle)]">
+                  {currentItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-[var(--bg-tertiary)]/30 transition-colors group">
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setPreviewImage(item.public_url)}
+                          className="w-12 h-12 rounded-lg overflow-hidden bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] hover:border-[var(--color-gold)] transition-all focus-ring"
+                        >
+                          <img 
+                            src={item.public_url} 
+                            alt={item.original_filename}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="max-w-[180px]">
+                          <p className="text-xs font-bold text-[var(--text-main)] truncate" title={item.original_filename}>
+                            {item.original_filename}
+                          </p>
+                          <p className="text-[10px] text-[var(--text-muted)] font-mono truncate opacity-60 mt-0.5">
+                            {item.mime_type}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs font-medium text-[var(--text-muted)]">
+                          {formatFileSize(item.file_size)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs font-semibold text-[var(--text-main)]">
+                          {item.uploader_name === 'bilalghaffar46' ? 'Bilal' : (item.uploader_name || 'System')}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-[10px] font-bold uppercase tracking-tighter text-[var(--text-muted)]">
+                          {formatDate(item.created_at)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end space-x-1">
+                          <button
+                            onClick={() => handleCopyUrl(item.public_url, item.id)}
+                            className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--color-gold)] transition-all focus-ring"
+                            title="Copy Link"
+                          >
+                            {copiedId === item.id ? (
+                              <Check className="w-3.5 h-3.5 text-green-500" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <a
+                            href={item.public_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--color-gold)] transition-all focus-ring"
+                            title="View"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deleting === item.id}
+                            className="p-1.5 rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-red-500 transition-all focus-ring disabled:opacity-30"
+                            title="Purge"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={media.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
       </AdminCard>
 

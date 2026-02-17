@@ -37,7 +37,7 @@ export default function EditBlogPage({ params }) {
   const [published, setPublished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [blogId, setBlogId] = useState(null);
+  const [blogId, setBlogId] = useState(blogIdFromParams);
 
   // Load existing blog data
   useEffect(() => {
@@ -54,14 +54,14 @@ export default function EditBlogPage({ params }) {
         if (data) {
           setBlogId(data.id);
           setTitle(data.title);
-          setSlug(data.slug);
+          setSlug(data.slug || '');
           setExcerpt(data.excerpt || '');
           setFeaturedImage(data.featured_image || '');
           setContent(data.content || { blocks: [] });
           setPublished(data.published || false);
         }
       } catch (error) {
-        if (error.name === 'AbortError') return;
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
         console.error('Error loading blog:', error);
         addToast('Error loading blog', 'error');
         router.push('/admin/blogs');
@@ -104,6 +104,7 @@ export default function EditBlogPage({ params }) {
       addToast('Blog updated successfully!', 'success');
       router.push('/admin/blogs');
     } catch (error) {
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
       console.error('Error updating blog:', error);
       addToast('Error updating blog: ' + error.message, 'error');
     } finally {

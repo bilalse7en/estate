@@ -214,13 +214,14 @@ export default function Navbar() {
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className={`p-2 transition-all active:scale-90 ${navTextColorClass}`}
+            aria-label={mobileMenuOpen ? "Close Menu" : "Open Menu"}
           >
             {mobileMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
           </button>
         </div>
       </div>
 
-      {/* MOBILE FULLSCREEN MENU */}
+      {/* MOBILE FULLSCREEN MENU - COMPACT & PROFESSIONAL */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -228,102 +229,124 @@ export default function Navbar() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[110] p-6 flex flex-col pt-32"
+            className="fixed inset-0 z-[110] flex flex-col"
           >
-            {/* Backdrop Blur Layer */}
-            <div className="absolute inset-0 bg-[var(--bg-main)]/95 backdrop-blur-2xl z-0" />
+            {/* Premium Glass Backdrop with Blur */}
+            <div className="absolute inset-0 glass backdrop-blur-3xl z-0 border-r-4 border-primary-500/10" />
             
-            <div className="relative z-10 flex flex-col h-full max-w-lg mx-auto w-full">
-              <button 
-                onClick={() => setMobileMenuOpen(false)} 
-                className="absolute -top-20 right-0 p-4 transition-all active:rotate-90"
-              >
-                <X className="w-10 h-10 text-[var(--text-main)]" />
-              </button>
+            {/* Scrollable Content Container */}
+            <div className="relative z-10 flex flex-col h-full overflow-y-auto">
+              {/* Header with Close Button */}
+              <div className="flex justify-between items-center p-6 pb-4 flex-shrink-0">
+                <BrandLogo size="sm" variant={theme === 'light' ? 'dark' : 'light'} />
+                <button 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="p-2.5 glass rounded-xl border border-[var(--glass-border)] transition-all active:scale-90"
+                >
+                  <X className="w-6 h-6 text-[var(--text-main)]" />
+                </button>
+              </div>
 
-              <div className="flex flex-col space-y-8 items-center text-center">
-                <div className="mb-12">
-                  <BrandLogo size="lg" variant={theme === 'light' ? 'dark' : 'light'} />
+              {/* Main Menu Content */}
+              <div className="flex flex-col px-6 pb-6 space-y-6 flex-1">
+                {/* Navigation Links - Compact */}
+                <div className="space-y-3 pt-4">
+                  {navLinks.map((link, i) => (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block text-2xl font-display font-bold text-[var(--text-main)] hover:text-primary-500 transition-colors py-2"
+                      >
+                        {link.name}
+                      </Link>
+                    </motion.div>
+                  ))}
                 </div>
 
-                {navLinks.map((link, i) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="w-full"
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-4xl font-display font-bold text-[var(--text-main)] hover:text-primary-500 transition-colors uppercase tracking-tight"
-                    >
-                      {link.name}
-                    </Link>
-                  </motion.div>
-                ))}
+                {/* Divider */}
+                <div className="w-full h-px bg-primary-500/20" />
 
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="w-full h-px bg-primary-500/20 max-w-[100px] !my-12"
-                />
-
+                {/* User Section - Compact */}
                 {user ? (
                   <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="w-full flex flex-col items-center"
+                    transition={{ delay: 0.3 }}
+                    className="space-y-3"
                   >
-                    <div className="mb-8 text-center flex flex-col items-center">
-                      {user.user_metadata?.avatar_url ? (
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden border-4 border-primary-500/30 ring-4 ring-primary-500/10 mb-4">
-                          <Image 
-                            src={user.user_metadata.avatar_url} 
-                            alt={userName || 'User'}
-                            width={80}
-                            height={80}
-                            className="w-full h-full object-cover"
-                          />
+                    {/* Profile Card - Compact */}
+                    <div className="glass p-4 rounded-2xl gradient-border-brown">
+                      <div className="flex items-center gap-3">
+                        {user.user_metadata?.avatar_url ? (
+                          <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-primary-500/30 ring-2 ring-primary-500/10 flex-shrink-0">
+                            <Image 
+                              src={user.user_metadata.avatar_url} 
+                              alt={userName || 'User'}
+                              width={48}
+                              height={48}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-primary-500/20 flex items-center justify-center border-2 border-primary-500/30 flex-shrink-0">
+                            <User className="w-6 h-6 text-primary-500" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[8px] text-primary-500 uppercase tracking-[0.3em] font-bold mb-0.5">Account</p>
+                          <p className="text-sm font-display font-bold text-[var(--text-main)] truncate">{userName}</p>
+                          <p className="text-[9px] text-[var(--text-muted)] opacity-70 truncate">{user.email}</p>
                         </div>
-                      ) : (
-                        <div className="w-20 h-20 rounded-2xl bg-primary-500/20 flex items-center justify-center mb-4 border-4 border-primary-500/30">
-                          <User className="w-10 h-10 text-primary-500" />
-                        </div>
-                      )}
-                      <p className="text-[10px] text-primary-500 uppercase tracking-[0.4em] font-bold mb-2">Account Portal</p>
-                      <p className="text-xl font-display font-bold text-[var(--text-main)]">{userName}</p>
+                      </div>
                     </div>
-                    {isAdmin && (
+                    
+                    {/* Action Buttons - Compact */}
+                    <div className="space-y-2">
+                      {isAdmin && (
+                        <Link 
+                          href="/admin" 
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="btn-premium w-full py-3 text-[10px] font-bold tracking-[0.25em] flex items-center justify-center gap-2"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                          CONTROL CENTER
+                        </Link>
+                      )}
+                      
                       <Link 
-                        href="/admin" 
+                        href="/submit-form" 
                         onClick={() => setMobileMenuOpen(false)}
-                        className="btn-premium w-full max-w-md py-5 text-xs font-bold tracking-[0.3em] shadow-xl mb-4"
+                        className="glass w-full py-3 rounded-xl border border-[var(--glass-border)] text-[10px] font-bold text-[var(--text-main)] tracking-[0.25em] hover:border-primary-500/50 transition-colors flex items-center justify-center gap-2"
                       >
-                        CONTROL CENTER
+                        <LayoutDashboard className="w-4 h-4" />
+                        MY INQUIRIES
                       </Link>
-                    )}
-                    <button 
-                      onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                      className="text-red-500 font-bold uppercase tracking-[0.3em] text-[10px] p-4 hover:opacity-70 transition-opacity"
-                    >
-                      TERMINATE SESSION
-                    </button>
+                      
+                      <button 
+                        onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                        className="w-full py-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-500 font-bold uppercase tracking-[0.25em] text-[10px] hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        SIGN OUT
+                      </button>
+                    </div>
                   </motion.div>
                 ) : (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    className="w-full"
+                    transition={{ delay: 0.3 }}
                   >
                     <Link
                       href="/auth/signin"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="btn-premium w-full max-w-md py-6 text-xs font-bold tracking-[0.3em] shadow-2xl"
+                      className="btn-premium w-full py-4 text-[10px] font-bold tracking-[0.3em]"
                     >
                       CLIENT LOGIN
                     </Link>

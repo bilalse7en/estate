@@ -27,6 +27,7 @@ export default function ProfileSettingsPage() {
           setProfile(data.content.profile);
         }
       } catch (error) {
+        if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
         console.error('Error loading profile:', error);
       } finally {
         clearTimeout(timeout);
@@ -39,6 +40,11 @@ export default function ProfileSettingsPage() {
   }, []);
 
   const handleSave = async () => {
+    const timeoutId = setTimeout(() => {
+      setSaving(false);
+      addToast('Save timeout - please try again', 'error');
+    }, 5000);
+
     setSaving(true);
     try {
       const { data: current } = await supabase.from('site_settings').select('content').eq('id', 'homepage').maybeSingle();
@@ -51,8 +57,10 @@ export default function ProfileSettingsPage() {
       if (error) throw error;
       addToast('Professional profile synchronized', 'success');
     } catch (error) {
+      if (error.name === 'AbortError' || error.message?.includes('AbortError')) return;
       addToast('Error saving settings', 'error');
     } finally {
+      clearTimeout(timeoutId);
       setSaving(false);
     }
   };
@@ -218,13 +226,77 @@ export default function ProfileSettingsPage() {
             </div>
           </AdminCard>
 
+          <AdminCard title="Strategic Call to Action">
+            <div className="space-y-4">
+              <div>
+                <label className="admin-label">Primary Engagement (Hero)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={profile.cta?.primaryText || 'Connect Now'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), primaryText: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Button Text"
+                  />
+                  <input
+                    type="text"
+                    value={profile.cta?.primaryLink || '#contact'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), primaryLink: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Redirect URL"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="admin-label">Secondary Channel (Email)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={profile.cta?.emailText || 'Email Consultation'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), emailText: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Button Text"
+                  />
+                  <input
+                    type="text"
+                    value={profile.cta?.emailLink || 'mailto:info@ahmedkapadia.com'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), emailLink: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Email URI"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="admin-label">Concierge Channel (Call)</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={profile.cta?.callText || 'Schedule Call'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), callText: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Button Text"
+                  />
+                  <input
+                    type="text"
+                    value={profile.cta?.callLink || '/contact'}
+                    onChange={(e) => setProfile({...profile, cta: {...(profile.cta || {}), callLink: e.target.value}})}
+                    className="admin-input text-[10px]"
+                    placeholder="Contact URL"
+                  />
+                </div>
+              </div>
+            </div>
+          </AdminCard>
+
           <AdminCard title="Digital Presence">
             <div className="space-y-4">
               <div className="relative">
                 <Linkedin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-blue-600" />
                 <input
                   type="text"
-                  value={profile.socials.linkedin}
+                  value={profile.socials.linkedin || ''}
                   onChange={(e) => setProfile({...profile, socials: {...profile.socials, linkedin: e.target.value}})}
                   className="admin-input pl-10 text-[9px]"
                   placeholder="LinkedIn Profile URL"
@@ -234,7 +306,7 @@ export default function ProfileSettingsPage() {
                 <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-sky-500" />
                 <input
                   type="text"
-                  value={profile.socials.twitter}
+                  value={profile.socials.twitter || ''}
                   onChange={(e) => setProfile({...profile, socials: {...profile.socials, twitter: e.target.value}})}
                   className="admin-input pl-10 text-[9px]"
                   placeholder="Twitter Handle URL"
@@ -244,7 +316,7 @@ export default function ProfileSettingsPage() {
                 <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-pink-600" />
                 <input
                   type="text"
-                  value={profile.socials.instagram}
+                  value={profile.socials.instagram || ''}
                   onChange={(e) => setProfile({...profile, socials: {...profile.socials, instagram: e.target.value}})}
                   className="admin-input pl-10 text-[9px]"
                   placeholder="Instagram URL"
