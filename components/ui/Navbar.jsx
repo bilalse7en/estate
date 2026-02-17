@@ -87,7 +87,7 @@ export default function Navbar() {
     <nav 
       className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${mobileNavBgClass} md:${desktopNavBgClass}`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-4 flex justify-between items-center min-h-[72px]">
+      <div className="max-w-7xl mx-auto sm:px-6 lg:px-12 flex justify-between items-center min-h-[72px]">
         {/* LOGO */}
         <Link href="/" className="group flex items-center shrink-0">
           <BrandLogo 
