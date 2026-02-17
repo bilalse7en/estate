@@ -7,7 +7,7 @@ import {
   Linkedin, Twitter, Instagram, ArrowRight, Award, 
   MapPin, Briefcase, GraduationCap, TrendingUp, ShieldCheck,
 Building2, Users, Target, Lightbulb, BarChart3, Globe2,
-  Star, Trophy, CheckCircle2, Mail, Phone
+  Star, Trophy, CheckCircle2, Mail, Phone, Sparkles
 } from 'lucide-react';
 
 export default function PortfolioPage() {
